@@ -1,4 +1,37 @@
 {
+  "package": {
+    "downloadUrl": "https://github.com/J-deep17/NovaTube/releases/download/v1.0.5/NovaTube_beta_32.79_universal.apk",
+    "downloadUrlList_armeabi-v7a": [
+      "https://github.com/J-deep17/NovaTube/releases/download/v1.0.5/NovaTube_beta_32.79_armeabi-v7a.apk"
+    ],
+    "downloadUrlList_arm64-v8a": [
+      "https://github.com/J-deep17/NovaTube/releases/download/v1.0.5/NovaTube_beta_32.79_arm64-v8a.apk"
+    ],
+    "downloadUrlList": [
+      "https://github.com/J-deep17/NovaTube/releases/download/v1.0.5/NovaTube_beta_32.79_universal.apk"
+    ]
+  },
+  "32.79": {
+    "versionCode": 2469,
+    "changelog": [
+      "🔒 Permanent cryptographic release signing key for seamless OTA updates",
+      "🎤 Fix Fire TV remote Alexa voice search & eliminate app store redirects",
+      "⌨️ Full physical keyboard input support with Enter key submission",
+      "🔙 Smooth Back button dismissal of on-screen keyboard without exit",
+      "✨ Custom NovaTube squircle star-play logo & 16:9 banner for Fire TV launcher",
+      "🚀 Dual manifest OTA update channels with instant GitHub & CDN fallbacks"
+    ],
+    "downloadUrl": "https://github.com/J-deep17/NovaTube/releases/download/v1.0.5/NovaTube_beta_32.79_universal.apk",
+    "downloadUrlList_armeabi-v7a": [
+      "https://github.com/J-deep17/NovaTube/releases/download/v1.0.5/NovaTube_beta_32.79_armeabi-v7a.apk"
+    ],
+    "downloadUrlList_arm64-v8a": [
+      "https://github.com/J-deep17/NovaTube/releases/download/v1.0.5/NovaTube_beta_32.79_arm64-v8a.apk"
+    ],
+    "downloadUrlList": [
+      "https://github.com/J-deep17/NovaTube/releases/download/v1.0.5/NovaTube_beta_32.79_universal.apk"
+    ]
+  },
   "32.78": {
     "versionCode": 2468,
     "changelog": [
@@ -17,5 +50,39 @@
     "downloadUrlList": [
       "https://github.com/J-deep17/NovaTube/releases/download/v1.0.4/NovaTube_beta_32.78_universal.apk"
     ]
+  },
+  "32.76": {
+    "versionCode": 2466,
+    "changelog": [
+      "🎤 Fix Alexa voice search on Redmi Fire TV & Fire OS remotes",
+      "🔍 Redesigned sleek dark search bar with pure white text",
+      "✨ Brand new NovaTube logo & TV launcher banner",
+      "🔄 In-App OTA Update System"
+    ],
+    "downloadUrl": "https://github.com/J-deep17/NovaTube/releases/download/v1.0.2/NovaTube_beta_32.76_universal.apk",
+    "downloadUrlList_armeabi-v7a": [
+      "https://github.com/J-deep17/NovaTube/releases/download/v1.0.2/NovaTube_beta_32.76_armeabi-v7a.apk"
+    ],
+    "downloadUrlList_arm64-v8a": [
+      "https://github.com/J-deep17/NovaTube/releases/download/v1.0.2/NovaTube_beta_32.76_arm64-v8a.apk"
+    ],
+    "downloadUrlList": [
+      "https://github.com/J-deep17/NovaTube/releases/download/v1.0.2/NovaTube_beta_32.76_universal.apk"
+    ]
+  },
+  "32.75": {
+    "versionCode": 2465,
+    "changelog": [
+      "Brand new NovaTube logo and TV launcher banner",
+      "In-App OTA update system with direct TV updates"
+    ],
+    "downloadUrl": "https://github.com/J-deep17/NovaTube/releases/download/v1.0.1/NovaTube_beta_32.75_universal.apk"
+  },
+  "32.74": {
+    "versionCode": 2464,
+    "changelog": [
+      "NovaTube TV release with modern YouTube TV UI"
+    ],
+    "downloadUrl": "https://github.com/J-deep17/NovaTube/releases/download/v1.0.0/NovaTube_beta_32.74_universal.apk"
   }
 }

@@ -38,17 +38,11 @@ jobs:
             echo "storePassword=${{ secrets.KEY_STORE_PASSWORD }}" > keystore.properties
             echo "keyAlias=${{ secrets.ALIAS }}" >> keystore.properties
             echo "keyPassword=${{ secrets.KEY_PASSWORD }}" >> keystore.properties
-            echo "storeFile=${{ github.workspace }}/key.jks" >> keystore.properties
-            echo "${{ secrets.SIGNING_KEY }}" | base64 --decode > ${{ github.workspace }}/key.jks
-          else
-            keytool -genkeypair -v -keystore "${{ github.workspace }}/release.keystore" \
-              -alias novatube -keyalg RSA -keysize 2048 -validity 10000 \
-              -storepass novatubepass -keypass novatubepass \
-              -dname "CN=NovaTube, OU=Dev, O=NovaTube, L=City, S=State, C=US"
-            echo "storePassword=novatubepass" > keystore.properties
-            echo "keyAlias=novatube" >> keystore.properties
-            echo "keyPassword=novatubepass" >> keystore.properties
             echo "storeFile=${{ github.workspace }}/release.keystore" >> keystore.properties
+            printf '%s' "${{ secrets.SIGNING_KEY }}" | base64 --decode > ${{ github.workspace }}/release.keystore
+            chmod 600 "${{ github.workspace }}/release.keystore" keystore.properties
+          else
+            echo "No signing key provided for CI run; building unsigned."
           fi
 
       - name: Grant Gradle permissions

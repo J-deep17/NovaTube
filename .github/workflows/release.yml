@@ -52,6 +52,15 @@ jobs:
           EOF
           chmod 600 "${GITHUB_WORKSPACE}/release.keystore" keystore.properties
 
+      - name: Inspect and verify permanent keystore fingerprint
+        env:
+          KEY_STORE_PASSWORD: ${{ secrets.KEY_STORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.ALIAS }}
+        run: |
+          set -euo pipefail
+          echo "=== Keystore Certificate Info ==="
+          keytool -list -v -keystore "${GITHUB_WORKSPACE}/release.keystore" -storepass "$KEY_STORE_PASSWORD" -alias "$KEY_ALIAS" | grep -E "Owner:|Issuer:|Certificate fingerprints|SHA256:|Valid from:"
+
       - name: Grant Gradle permissions
         run: chmod +x ./gradlew
 
@@ -64,7 +73,8 @@ jobs:
           APKS=$(find smarttubetv/build/outputs/apk -type f -name '*.apk')
           test -n "$APKS"
           while IFS= read -r apk; do
-            apksigner verify --verbose "$apk"
+            echo "Verifying signature for: $apk"
+            apksigner verify --verbose --print-certs "$apk"
           done <<< "$APKS"
 
       - name: Determine Tag
