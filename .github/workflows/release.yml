@@ -64,8 +64,8 @@ jobs:
       - name: Grant Gradle permissions
         run: chmod +x ./gradlew
 
-      - name: Build Release APKs (Stable & Beta)
-        run: ./gradlew clean assembleStstableRelease assembleStbetaRelease -x lint
+      - name: Build Release APKs (Stable Only)
+        run: ./gradlew clean assembleStstableRelease -x lint
 
       - name: Verify APK signatures
         run: |
@@ -95,7 +95,7 @@ jobs:
             echo "TAG_NAME=${GITHUB_REF#refs/tags/}" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Publish GitHub Release
+      - name: Publish GitHub Release (Stable Only)
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAG: ${{ steps.tag.outputs.TAG_NAME }}
@@ -103,8 +103,6 @@ jobs:
           set -euo pipefail
           gh release create "$TAG" \
             smarttubetv/build/outputs/apk/ststable/release/*.apk \
-            smarttubetv/build/outputs/apk/stbeta/release/*.apk \
             release/novatube_stable.json \
-            release/novatube_beta.json \
             --title "NovaTube TV $TAG" \
-            --notes "NovaTube TV release. Universal APK is recommended for Fire TV and Android TV. All releases are signed with the persistent NovaTube release key so in-app OTA upgrades remain compatible."
+            --notes "NovaTube TV Stable release. Universal APK is recommended for Fire TV and Android TV. All releases are signed with the persistent NovaTube release key so in-app OTA upgrades remain compatible."
