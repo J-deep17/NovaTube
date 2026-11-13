@@ -248,4 +248,11 @@
         <item name="cardSelectedBackground">@color/card_selected_background_white_grey</item>
     </style>
     <!--  End Color scheme: Dark Blue (OLED)  -->
+    <!-- Modern YouTube on TV Shelf Row Title -->
+    <style name="TextAppearance.Leanback.Row.Header" parent="TextAppearance.Leanback.Header">
+        <item name="android:textSize">18sp</item>
+        <item name="android:textColor">#FFFFFFFF</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:textStyle">bold</item>
+    </style>
 </resources>

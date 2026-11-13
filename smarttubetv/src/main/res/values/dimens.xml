@@ -50,9 +50,12 @@
     <!-- Old value: 167dp -->
     <dimen name="lb_browse_rows_margin_top">130dp</dimen>
 
-    <!-- Increase this value to hide left strip from Browse fragment (when headers collapsed) -->
-    <!-- Old value: 238dp -->
-    <dimen name="lb_browse_rows_margin_start">265dp</dimen>
+    <!-- YouTube on TV layout dimensions -->
+    <dimen name="lb_browse_headers_width">64dp</dimen>
+    <dimen name="lb_browse_rows_margin_start">72dp</dimen>
+    <dimen name="lb_browse_header_fading_length">0dp</dimen>
+    <dimen name="lb_browse_header_padding_end">0dp</dimen>
+    <dimen name="lb_browse_padding_start">16dp</dimen>
 
     <!-- Make search bar more compact so more buttons could be added after it. -->
     <dimen name="lb_search_bar_items_width">600dp</dimen>

@@ -19,6 +19,7 @@ import androidx.leanback.widget.FocusHighlight;
 import androidx.leanback.widget.ListRow;
 import androidx.leanback.widget.RowPresenter;
 import androidx.leanback.widget.VerticalGridView;
+import com.bumptech.glide.load.DecodeFormat;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestOptions;
 import com.liskovsoft.sharedutils.helpers.Helpers;
@@ -176,6 +177,13 @@ public class ViewUtil {
         return new RequestOptions()
                 .diskCacheStrategy(DiskCacheStrategy.NONE) // ensure start animation from beginning
                 .skipMemoryCache(true); // ensure start animation from beginning
+    }
+
+    public static RequestOptions glideCardOptions() {
+        return new RequestOptions()
+                .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
+                .skipMemoryCache(false)
+                .format(DecodeFormat.PREFER_RGB_565);
     }
 
     public static void enableTransparentDialog(Context context, View rootView) {

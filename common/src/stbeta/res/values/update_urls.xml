@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string-array name="update_urls">
+        <item>https://cdn.jsdelivr.net/gh/J-deep17/NovaTube@master/release/novatube_beta.json</item>
         <item>https://raw.githubusercontent.com/J-deep17/NovaTube/master/release/novatube_beta.json</item>
         <item>https://github.com/J-deep17/NovaTube/releases/latest/download/novatube_beta.json</item>
     </string-array>

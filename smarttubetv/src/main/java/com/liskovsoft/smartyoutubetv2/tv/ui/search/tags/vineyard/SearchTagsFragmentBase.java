@@ -365,15 +365,8 @@ public abstract class SearchTagsFragmentBase extends SearchSupportFragment
                     }
                 });
             } catch (SpeechRecognitionNotAvailable | GoogleVoiceTypingDisabledException exc) {
-                Log.e(TAG, "Speech recognition is not available on this device!");
-                // You can prompt the user if he wants to install Google App to have
-                // speech recognition, and then you can simply call:
-                try {
-                    SpeechUtil.redirectUserToGoogleAppOnPlayStore(getContext());
-                } catch (ActivityNotFoundException | NullPointerException e) {
-                    // NullPointerException: android.os.Parcel.readException (Parcel.java:1478)
-                    e.printStackTrace();
-                }
+                Log.e(TAG, "Speech recognition engine not available, falling back to intent recognizer");
+                mDefaultCallback.recognizeSpeech();
             }
         } else {
             Log.e(TAG, "Can't perform search. Fragment is detached.");

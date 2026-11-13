@@ -119,7 +119,7 @@ public class SearchData {
     }
 
     public int getSpeechRecognizerType() {
-        if (mSpeechRecognizerType == SPEECH_RECOGNIZER_SYSTEM && Helpers.isAmazonFireTVDevice()) {
+        if (Helpers.isAmazonFireTVDevice()) {
             return SPEECH_RECOGNIZER_INTENT;
         }
         return mSpeechRecognizerType;
