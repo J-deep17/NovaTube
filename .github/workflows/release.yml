@@ -66,6 +66,7 @@ jobs:
           gh release create "$TAG" \
             smarttubetv/build/outputs/apk/ststable/release/*.apk \
             smarttubetv/build/outputs/apk/stbeta/release/*.apk \
+            release/*.json \
             --title "NovaTube TV $TAG" \
             --notes "### 📺 NovaTube TV $TAG Release
 
@@ -80,3 +81,4 @@ jobs:
           1. Open the **Downloader** app on your Fire TV or Android TV.
           2. Enter the direct download URL for the APK from below.
           3. Click Install and enjoy ad-free YouTube with the modern YouTube TV UI."
+

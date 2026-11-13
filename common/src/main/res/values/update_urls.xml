@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string-array name="update_urls">
-        <!-- NOTE: Real urls moved to the flavor's folder -->
-        <!--<item>https://github.com/yuliskov/SmartTubeNext/releases/download/latest/smarttube_beta.json</item>-->
+        <item>https://raw.githubusercontent.com/J-deep17/NovaTube/master/release/novatube_stable.json</item>
+        <item>https://github.com/J-deep17/NovaTube/releases/latest/download/novatube_stable.json</item>
     </string-array>
 </resources>
