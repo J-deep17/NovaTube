@@ -248,4 +248,26 @@
         <item name="cardSelectedBackground">@color/card_selected_background_white_grey</item>
     </style>
     <!--  End Color scheme: Dark Blue (OLED)  -->
+
+    <!-- YouTube TV On-Screen Keyboard Styles -->
+    <style name="YouTubeTVKeyboardKey">
+        <item name="android:layout_width">44dp</item>
+        <item name="android:layout_height">44dp</item>
+        <item name="android:layout_margin">3dp</item>
+        <item name="android:focusable">true</item>
+        <item name="android:focusableInTouchMode">true</item>
+        <item name="android:background">@drawable/yt_tv_key_background</item>
+        <item name="android:textColor">@color/yt_tv_key_text_color</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:gravity">center</item>
+        <item name="android:padding">0dp</item>
+        <item name="android:includeFontPadding">false</item>
+    </style>
+
+    <style name="YouTubeTVKeyboardActionKey" parent="YouTubeTVKeyboardKey">
+        <item name="android:textSize">13sp</item>
+        <item name="android:paddingStart">6dp</item>
+        <item name="android:paddingEnd">6dp</item>
+    </style>
 </resources>

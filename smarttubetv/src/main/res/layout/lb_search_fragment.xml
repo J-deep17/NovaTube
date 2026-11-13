@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- YouTube on TV Style Search Fragment -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/lb_search_frame"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#0F0F0F"
+    android:clipChildren="false">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:clipChildren="false">
+
+        <!-- Top YouTube TV Search Header Bar -->
+        <androidx.leanback.widget.SearchBar
+            android:id="@+id/lb_search_bar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:layout_marginStart="28dp"
+            android:layout_marginEnd="28dp"
+            android:clipChildren="false" />
+
+        <!-- Main Search Area: Split between On-Screen Keyboard and Results/Suggestions -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:orientation="horizontal"
+            android:clipChildren="false">
+
+            <!-- Left: YouTube-style On-Screen TV Keyboard -->
+            <include
+                android:id="@+id/youtube_tv_keyboard_container"
+                layout="@layout/view_youtube_tv_keyboard"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="28dp"
+                android:layout_marginTop="12dp" />
+
+            <!-- Right: Search Suggestions & Video Results Rows -->
+            <FrameLayout
+                android:id="@+id/lb_results_frame"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:layout_marginStart="20dp"
+                android:layout_marginEnd="16dp"
+                android:clipChildren="false" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</FrameLayout>

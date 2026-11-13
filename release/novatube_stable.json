@@ -1,14 +1,34 @@
 {
   "package": {
-    "downloadUrl": "https://github.com/J-deep17/NovaTube/releases/download/v1.0.6/NovaTube_stable_32.80_universal.apk",
+    "downloadUrl": "https://github.com/J-deep17/NovaTube/releases/download/v1.0.7/NovaTube_stable_32.81_universal.apk",
     "downloadUrlList_armeabi-v7a": [
-      "https://github.com/J-deep17/NovaTube/releases/download/v1.0.6/NovaTube_stable_32.80_armeabi-v7a.apk"
+      "https://github.com/J-deep17/NovaTube/releases/download/v1.0.7/NovaTube_stable_32.81_armeabi-v7a.apk"
     ],
     "downloadUrlList_arm64-v8a": [
-      "https://github.com/J-deep17/NovaTube/releases/download/v1.0.6/NovaTube_stable_32.80_arm64-v8a.apk"
+      "https://github.com/J-deep17/NovaTube/releases/download/v1.0.7/NovaTube_stable_32.81_arm64-v8a.apk"
     ],
     "downloadUrlList": [
-      "https://github.com/J-deep17/NovaTube/releases/download/v1.0.6/NovaTube_stable_32.80_universal.apk"
+      "https://github.com/J-deep17/NovaTube/releases/download/v1.0.7/NovaTube_stable_32.81_universal.apk"
+    ]
+  },
+  "32.81": {
+    "versionCode": 2471,
+    "changelog": [
+      "🔍 YouTube TV style on-screen keyboard with full D-pad remote navigation",
+      "🎤 In-app microphone button for direct voice search with instant field display",
+      "⌨️ Dedicated action controls: Space, Backspace (Delete), Clear, and Search",
+      "📋 Real-time search suggestions and recent searches row beside keyboard",
+      "✨ Clear button inside modern pill search input field"
+    ],
+    "downloadUrl": "https://github.com/J-deep17/NovaTube/releases/download/v1.0.7/NovaTube_stable_32.81_universal.apk",
+    "downloadUrlList_armeabi-v7a": [
+      "https://github.com/J-deep17/NovaTube/releases/download/v1.0.7/NovaTube_stable_32.81_armeabi-v7a.apk"
+    ],
+    "downloadUrlList_arm64-v8a": [
+      "https://github.com/J-deep17/NovaTube/releases/download/v1.0.7/NovaTube_stable_32.81_arm64-v8a.apk"
+    ],
+    "downloadUrlList": [
+      "https://github.com/J-deep17/NovaTube/releases/download/v1.0.7/NovaTube_stable_32.81_universal.apk"
     ]
   },
   "32.80": {
