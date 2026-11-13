@@ -29,33 +29,53 @@ jobs:
           distribution: 'temurin'
           cache: 'gradle'
 
-      - name: Setup Signing Key
+      # OTA installation requires every release to use the SAME signing certificate.
+      # Never generate a new key for each release: Android will reject the update.
+      - name: Configure persistent release signing key
+        env:
+          SIGNING_KEY: ${{ secrets.SIGNING_KEY }}
+          KEY_STORE_PASSWORD: ${{ secrets.KEY_STORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
         run: |
-          # Generate a signing key if one does not exist so APKs can be installed on Android TV / Fire TV
-          keytool -genkeypair -v -keystore "${GITHUB_WORKSPACE}/release.keystore" \
-            -alias novatube -keyalg RSA -keysize 2048 -validity 10000 \
-            -storepass novatubepass -keypass novatubepass \
-            -dname "CN=NovaTube, OU=Dev, O=NovaTube, L=City, S=State, C=US"
-          
-          echo "storePassword=novatubepass" > keystore.properties
-          echo "keyAlias=novatube" >> keystore.properties
-          echo "keyPassword=novatubepass" >> keystore.properties
-          echo "storeFile=${GITHUB_WORKSPACE}/release.keystore" >> keystore.properties
+          set -euo pipefail
+          if [ -z "$SIGNING_KEY" ] || [ -z "$KEY_STORE_PASSWORD" ] || [ -z "$KEY_ALIAS" ] || [ -z "$KEY_PASSWORD" ]; then
+            echo "::error::Release signing secrets are missing. Configure SIGNING_KEY, KEY_STORE_PASSWORD, ALIAS and KEY_PASSWORD. Do not generate a new key: it would break OTA upgrades."
+            exit 1
+          fi
+          printf '%s' "$SIGNING_KEY" | base64 --decode > "${GITHUB_WORKSPACE}/release.keystore"
+          cat > keystore.properties <<EOF
+          storePassword=$KEY_STORE_PASSWORD
+          keyAlias=$KEY_ALIAS
+          keyPassword=$KEY_PASSWORD
+          storeFile=${GITHUB_WORKSPACE}/release.keystore
+          EOF
+          chmod 600 "${GITHUB_WORKSPACE}/release.keystore" keystore.properties
 
       - name: Grant Gradle permissions
-        run: chmod +x gradlew
+        run: chmod +x ./gradlew
 
       - name: Build Release APKs (Stable & Beta)
+        run: ./gradlew clean assembleStstableRelease assembleStbetaRelease -x lint
+
+      - name: Verify APK signatures
         run: |
-          ./gradlew clean assembleStstableRelease assembleStbetaRelease -x lint
+          set -euo pipefail
+          APKS=$(find smarttubetv/build/outputs/apk -type f -name '*.apk')
+          test -n "$APKS"
+          while IFS= read -r apk; do
+            apksigner verify --verbose "$apk"
+          done <<< "$APKS"
 
       - name: Determine Tag
         id: tag
+        env:
+          INPUT_TAG: ${{ github.event.inputs.tag_name }}
         run: |
-          if [ -n "${{ github.event.inputs.tag_name }}" ]; then
-            echo "TAG_NAME=${{ github.event.inputs.tag_name }}" >> $GITHUB_OUTPUT
+          if [ -n "$INPUT_TAG" ]; then
+            echo "TAG_NAME=$INPUT_TAG" >> "$GITHUB_OUTPUT"
           else
-            echo "TAG_NAME=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+            echo "TAG_NAME=${GITHUB_REF#refs/tags/}" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Publish GitHub Release
@@ -63,22 +83,11 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAG: ${{ steps.tag.outputs.TAG_NAME }}
         run: |
+          set -euo pipefail
           gh release create "$TAG" \
             smarttubetv/build/outputs/apk/ststable/release/*.apk \
             smarttubetv/build/outputs/apk/stbeta/release/*.apk \
-            release/*.json \
+            release/novatube_stable.json \
+            release/novatube_beta.json \
             --title "NovaTube TV $TAG" \
-            --notes "### 📺 NovaTube TV $TAG Release
-
-          Ready-to-install release for **Redmi Fire TV, Amazon Fire TV Stick, Google TV, and Android TV**.
-
-          #### 📦 Available APKs:
-          - **Universal APK (`*_universal.apk`)**: Recommended for all devices (Redmi Fire TV, Firestick 4K/Max, Google TV, NVIDIA Shield).
-          - **ARM64 APK (`*_arm64-v8a.apk`)**: For 64-bit devices.
-          - **ARMv7 APK (`*_armeabi-v7a.apk`)**: For older 32-bit TV boxes and sticks.
-
-          #### 🚀 How to Install on Fire TV / Google TV:
-          1. Open the **Downloader** app on your Fire TV or Android TV.
-          2. Enter the direct download URL for the APK from below.
-          3. Click Install and enjoy ad-free YouTube with the modern YouTube TV UI."
-
+            --notes "NovaTube TV release. Universal APK is recommended for Fire TV and Android TV. All releases are signed with the persistent NovaTube release key so in-app OTA upgrades remain compatible."
