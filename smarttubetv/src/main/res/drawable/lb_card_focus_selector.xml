@@ -5,3 +5,4 @@
     <item android:state_focused="true" android:drawable="@drawable/lb_card_focus_border"/>
     <item android:drawable="@android:color/transparent"/>
 </selector>
+

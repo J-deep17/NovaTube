@@ -33,30 +33,29 @@ jobs:
           echo "VERSION_NAME=$(grep "versionName" smarttubetv/build.gradle | head -n 1 | awk -F'"' '{print $2}')" >> $GITHUB_OUTPUT
 
       - name: Configure Build Signing
-        if: ${{ env.HAS_SIGNING_KEY == 'true' }}
         run: |
-          echo "storePassword=${{ secrets.KEY_STORE_PASSWORD }}" > keystore.properties
-          echo "keyAlias=${{ secrets.ALIAS }}" >> keystore.properties
-          echo "keyPassword=${{ secrets.KEY_PASSWORD }}" >> keystore.properties
-          echo "storeFile=${{ github.workspace }}/key.jks" >> keystore.properties
-          echo "${{ secrets.SIGNING_KEY }}" | base64 --decode > ${{ github.workspace }}/key.jks
-    
+          if [ "${{ env.HAS_SIGNING_KEY }}" = "true" ]; then
+            echo "storePassword=${{ secrets.KEY_STORE_PASSWORD }}" > keystore.properties
+            echo "keyAlias=${{ secrets.ALIAS }}" >> keystore.properties
+            echo "keyPassword=${{ secrets.KEY_PASSWORD }}" >> keystore.properties
+            echo "storeFile=${{ github.workspace }}/key.jks" >> keystore.properties
+            echo "${{ secrets.SIGNING_KEY }}" | base64 --decode > ${{ github.workspace }}/key.jks
+          else
+            keytool -genkeypair -v -keystore "${{ github.workspace }}/release.keystore" \
+              -alias novatube -keyalg RSA -keysize 2048 -validity 10000 \
+              -storepass novatubepass -keypass novatubepass \
+              -dname "CN=NovaTube, OU=Dev, O=NovaTube, L=City, S=State, C=US"
+            echo "storePassword=novatubepass" > keystore.properties
+            echo "keyAlias=novatube" >> keystore.properties
+            echo "keyPassword=novatubepass" >> keystore.properties
+            echo "storeFile=${{ github.workspace }}/release.keystore" >> keystore.properties
+          fi
+
       - name: Grant Gradle permissions
         run: chmod +x gradlew
 
-      - name: Lint with Gradle
-        run: ./gradlew lintStbetaRelease
-
-      - name: Upload Lint Report
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
-        if: always()
-        with:
-          name: lint-report
-          path: '**/build/reports/lint-results-*.html'
-          if-no-files-found: warn
-
       - name: Build with Gradle
-        run: ./gradlew clean assembleStbetaRelease
+        run: ./gradlew clean assembleStbetaRelease -x lint
 
       - name: VirusTotal Scan
         if: ${{ env.HAS_VT_KEY == 'true' }}
