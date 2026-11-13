@@ -48,6 +48,7 @@ import com.google.gson.reflect.TypeToken;
 import com.liskovsoft.sharedutils.mylogger.Log;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -1049,10 +1050,20 @@ public final class Helpers {
             return sIsAmazonFireTVDevice;
         }
 
-        String deviceName = Build.MODEL;
-        String manufacturerName = Build.MANUFACTURER;
-        sIsAmazonFireTVDevice = (deviceName.startsWith("AFT")
-                && "Amazon".equalsIgnoreCase(manufacturerName));
+        String deviceName = Build.MODEL != null ? Build.MODEL : "";
+        String manufacturerName = Build.MANUFACTURER != null ? Build.MANUFACTURER : "";
+        String fingerprint = Build.FINGERPRINT != null ? Build.FINGERPRINT : "";
+
+        boolean isAFT = deviceName.startsWith("AFT") && "Amazon".equalsIgnoreCase(manufacturerName);
+        boolean isFireTV = "Amazon".equalsIgnoreCase(manufacturerName)
+                || fingerprint.contains("Amazon")
+                || fingerprint.contains("FireTV")
+                || fingerprint.contains("firetv")
+                || deviceName.toLowerCase().contains("firetv")
+                || new File("/system/framework/amazon-fireos.jar").exists()
+                || new File("/system/priv-app/FireTVHome").exists();
+
+        sIsAmazonFireTVDevice = isAFT || isFireTV;
 
         return sIsAmazonFireTVDevice;
     }

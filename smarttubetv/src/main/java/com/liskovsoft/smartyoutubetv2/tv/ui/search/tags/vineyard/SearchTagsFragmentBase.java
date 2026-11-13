@@ -4,6 +4,8 @@ import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.os.Bundle;
+import android.speech.SpeechRecognizer;
+import com.liskovsoft.sharedutils.helpers.Helpers;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -155,14 +157,16 @@ public abstract class SearchTagsFragmentBase extends SearchSupportFragment
         // NOTE: External recognizer makes voice search behave unexpectedly (broken by Google app updates).
         // You should avoid using it till there be a solution.
 
-        switch (getSearchData().getSpeechRecognizerType()) {
+        int recognizerType = getSearchData().getSpeechRecognizerType();
+        if (recognizerType == SearchData.SPEECH_RECOGNIZER_SYSTEM) {
+            // Auto fallback on Fire TV / Redmi Fire TV or any device without Google SpeechRecognizer
+            if (Helpers.isAmazonFireTVDevice() || !SpeechRecognizer.isRecognitionAvailable(getContext())) {
+                recognizerType = SearchData.SPEECH_RECOGNIZER_INTENT;
+            }
+        }
+
+        switch (recognizerType) {
             case SearchData.SPEECH_RECOGNIZER_SYSTEM:
-                // Don't uncomment. Sometimes system recognizer works on lower api
-                // Do nothing unless we have old api.
-                // Internal recognizer needs API >= 23. See: androidx.leanback.widget.SearchBar.startRecognition()
-                //if (Build.VERSION.SDK_INT < 23) {
-                //    setSpeechRecognitionCallback(mDefaultCallback);
-                //}
                 break;
             case SearchData.SPEECH_RECOGNIZER_INTENT:
                 setSpeechRecognitionCallback(mDefaultCallback);
