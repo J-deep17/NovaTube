@@ -13,12 +13,14 @@ import android.text.InputType;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnFocusChangeListener;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.inputmethod.CompletionInfo;
+import android.view.inputmethod.EditorInfo;
 import android.widget.FrameLayout;
 import androidx.fragment.app.Fragment;
 import androidx.leanback.R;
@@ -347,16 +349,25 @@ public class SearchSupportFragment extends Fragment {
 
         mSearchTextEditor = mSearchBar.findViewById(R.id.lb_search_text_editor);
         mSearchTextEditor.setSelectAllOnFocus(true); // Select all on focus (easy clear previous search)
+        final OnFocusChangeListener originalEditorFocusListener = mSearchTextEditor.getOnFocusChangeListener();
         mSearchTextEditor.setOnFocusChangeListener((v, focused) -> {
-            Log.d(TAG, "on search field focused");
+            Log.d(TAG, "on search field focused: " + focused);
+
+            if (originalEditorFocusListener != null) {
+                originalEditorFocusListener.onFocusChange(v, focused);
+            }
 
             // User clicked on tag and tries to edit search query
             if (focused && !TextUtils.isEmpty(getSearchBarText())) {
                 SearchPresenter.instance(v.getContext()).disposeActions();
             }
 
-            if (mIsKeyboardAutoShowEnabled && focused) {
-                Helpers.showKeyboardAlt(v.getContext(), v);
+            if (focused) {
+                if (mIsKeyboardAutoShowEnabled) {
+                    Helpers.showKeyboardAlt(v.getContext(), v);
+                }
+            } else {
+                Helpers.hideKeyboard(v.getContext(), v);
             }
         });
         mSearchTextEditor.addTextChangedListener(new TextWatcher() {
@@ -375,9 +386,41 @@ public class SearchSupportFragment extends Fragment {
                 Utils.enableScreensaver(getActivity(), true);
             }
         });
-        if (mIsKeyboardFixEnabled) {
-            KeyHelpers.fixEnterKey(mSearchTextEditor);
-        }
+
+        // Handle physical keyboard typing and remote Enter / Done keys
+        mSearchTextEditor.setOnKeyListener((v, keyCode, event) -> {
+            if (keyCode == KeyEvent.KEYCODE_ENTER || keyCode == KeyEvent.KEYCODE_NUMPAD_ENTER) {
+                if (event.getAction() == KeyEvent.ACTION_UP) {
+                    String query = getSearchBarText();
+                    if (!TextUtils.isEmpty(query)) {
+                        submitQuery(query);
+                        Helpers.hideKeyboard(getContext(), v);
+                        focusOnResults();
+                        return true;
+                    } else {
+                        Helpers.showKeyboardAlt(v.getContext(), v);
+                        return true;
+                    }
+                }
+                return true;
+            }
+            return false;
+        });
+
+        mSearchTextEditor.setOnEditorActionListener((textView, actionId, keyEvent) -> {
+            if (actionId == EditorInfo.IME_ACTION_SEARCH || actionId == EditorInfo.IME_NULL
+                    || actionId == EditorInfo.IME_ACTION_GO || actionId == EditorInfo.IME_ACTION_DONE) {
+                String query = getSearchBarText();
+                if (!TextUtils.isEmpty(query)) {
+                    submitQuery(query);
+                    Helpers.hideKeyboard(getContext(), textView);
+                    focusOnResults();
+                    return true;
+                }
+            }
+            return false;
+        });
+
         if (mIsTypingCorrectionDisabled) {
             mSearchTextEditor.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
         }
@@ -777,6 +820,13 @@ public class SearchSupportFragment extends Fragment {
 
     public void focusOnSearchField() {
         mSearchTextEditor.requestFocus(); // MOD: focus on search field
+    }
+
+    public void hideKeyboard() {
+        if (mSearchTextEditor != null && getContext() != null) {
+            Helpers.hideKeyboard(getContext(), mSearchTextEditor);
+            mSearchTextEditor.clearFocus();
+        }
     }
 
     protected String getSearchBarText() {

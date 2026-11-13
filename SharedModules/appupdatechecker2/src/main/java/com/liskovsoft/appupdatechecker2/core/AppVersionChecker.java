@@ -131,20 +131,30 @@ public class AppVersionChecker {
             final int versionCode = versionInfo.getInt("versionCode");
             versionMap.put(versionCode, versionInfo);
         }
+        if (versionMap.isEmpty()) {
+            throw new JSONException("No valid version entries found in manifest");
+        }
+
         final int latestVersionNumber = versionMap.firstKey();
         final String latestVersionName = versionMap.get(latestVersionNumber).getString("versionName");
 
+        if (mVersionInfo == null) {
+            mVersionInfo = versionMap.get(latestVersionNumber);
+        }
+
         final Uri[] downloadUrls;
 
-        if (mVersionInfo.has("downloadUrlList_" + DeviceHelpers.getPrimaryAbi())) {
+        if (mVersionInfo != null && mVersionInfo.has("downloadUrlList_" + DeviceHelpers.getPrimaryAbi())) {
             JSONArray urls = mVersionInfo.getJSONArray("downloadUrlList_" + DeviceHelpers.getPrimaryAbi());
             downloadUrls = parse(urls);
-        } else if (mVersionInfo.has("downloadUrlList")) {
+        } else if (mVersionInfo != null && mVersionInfo.has("downloadUrlList")) {
             JSONArray urls = mVersionInfo.getJSONArray("downloadUrlList");
             downloadUrls = parse(urls);
-        } else {
+        } else if (mVersionInfo != null && mVersionInfo.has("downloadUrl")) {
             String url = mVersionInfo.getString("downloadUrl");
             downloadUrls = new Uri[]{Uri.parse(url)};
+        } else {
+            downloadUrls = null;
         }
 
         if (downloadUrls != null) {
