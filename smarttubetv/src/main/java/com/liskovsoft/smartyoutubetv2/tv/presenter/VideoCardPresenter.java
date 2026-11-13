@@ -85,6 +85,9 @@ public class VideoCardPresenter extends LongClickPresenter {
         cardView.enableTitle(isTitleEnabled());
         cardView.enableContent(isContentEnabled());
         cardView.setBackgroundColor(mDefaultBackgroundColor); // background is temporarily visible during animations
+        if (VERSION.SDK_INT >= 23) {
+            cardView.setForeground(ContextCompat.getDrawable(context, R.drawable.lb_card_focus_selector));
+        }
         updateCardBackgroundColor(cardView, false);
         return new ViewHolder(cardView);
     }
@@ -148,17 +151,24 @@ public class VideoCardPresenter extends LongClickPresenter {
         }
 
         Glide.with(context)
+                //.asBitmap() // disable animation (webp, gif)
                 .load(ClickbaitRemover.updateThumbnail(video, mThumbQuality))
-                .apply(ViewUtil.glideCardOptions())
+                //.placeholder(mDefaultCardImage)
+                .apply(ViewUtil.glideOptions())
+                // improve image compression on low end devices
                 .override(mWidth, mHeight)
+                // com.liskovsoft.smartyoutubetv2.tv.util.CacheGlideModule
+                // Cache makes app crashing on old android versions
+                .diskCacheStrategy(VERSION.SDK_INT > 21 ? DiskCacheStrategy.ALL : DiskCacheStrategy.NONE)
                 .listener(mErrorListener)
                 .error(
                     // Updated thumbnail url not found
                     Glide.with(context)
-                        .load(video.cardImageUrl)
-                        .apply(ViewUtil.glideCardOptions())
+                        .load(video.cardImageUrl) // always working
+                        //.placeholder(mDefaultCardImage)
+                        .apply(ViewUtil.glideOptions())
                         .listener(mErrorListener)
-                        .error(R.drawable.card_placeholder)
+                        .error(R.drawable.card_placeholder) // R.color.lb_grey
                 )
                 .into(cardView.getMainImageView());
     }

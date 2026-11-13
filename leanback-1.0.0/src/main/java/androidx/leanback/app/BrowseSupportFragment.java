@@ -1450,25 +1450,21 @@ public class BrowseSupportFragment extends BaseSupportFragment {
         MarginLayoutParams lp;
         View containerList;
         containerList = mHeadersSupportFragment.getView();
-        if (containerList != null) {
-            lp = (MarginLayoutParams) containerList.getLayoutParams();
-            // NovaTube YouTube on TV: Keep compact icon rail always visible on the left
-            lp.setMarginStart(0);
-            containerList.setLayoutParams(lp);
-        }
+        lp = (MarginLayoutParams) containerList.getLayoutParams();
+        lp.setMarginStart(onScreen ? 0 : -mContainerListMarginStart);
+        containerList.setLayoutParams(lp);
     }
 
     void showHeaders(boolean show) {
         if (DEBUG) Log.v(TAG, "showHeaders " + show);
-        mHeadersSupportFragment.setHeadersEnabled(true);
+        mHeadersSupportFragment.setHeadersEnabled(show);
         setHeadersOnScreen(show);
         expandMainFragment(!show);
     }
 
     private void expandMainFragment(boolean expand) {
         MarginLayoutParams params = (MarginLayoutParams) mScaleFrameLayout.getLayoutParams();
-        // NovaTube YouTube on TV: Main rows always start after the navigation rail
-        params.setMarginStart(mContainerListMarginStart);
+        params.setMarginStart(!expand ? mContainerListMarginStart : 0);
         mScaleFrameLayout.setLayoutParams(params);
         mMainFragmentAdapter.setExpand(expand);
 

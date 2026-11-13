@@ -1,13 +1,11 @@
 package com.liskovsoft.smartyoutubetv2.tv.ui.widgets.complexcardview;
 
 import android.content.Context;
-import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.AttributeSet;
 import android.widget.ImageView.ScaleType;
 import android.widget.TextView;
-import androidx.core.content.ContextCompat;
 import androidx.leanback.widget.ImageCardView;
 
 import com.liskovsoft.smartyoutubetv2.common.app.models.data.Video;
@@ -41,12 +39,6 @@ public class ComplexImageCardView extends ImageCardView {
     private void init() {
         mComplexImageView = findViewById(R.id.main_image_wrapper);
         mHandler = new Handler(Looper.getMainLooper());
-        if (mComplexImageView != null) {
-            mComplexImageView.setDuplicateParentStateEnabled(true);
-            if (Build.VERSION.SDK_INT >= 23) {
-                mComplexImageView.setForeground(ContextCompat.getDrawable(getContext(), R.drawable.lb_card_focus_selector));
-            }
-        }
     }
 
     private void enableTitleAnimation(boolean enable) {
@@ -101,10 +93,6 @@ public class ComplexImageCardView extends ImageCardView {
     @Override
     public void setSelected(boolean selected) {
         super.setSelected(selected);
-
-        if (mComplexImageView != null) {
-            mComplexImageView.setSelected(selected);
-        }
 
         if (mIsCardTextAutoScrollEnabled) {
             enableTitleAnimation(selected);

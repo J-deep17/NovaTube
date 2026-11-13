@@ -47,6 +47,6 @@
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:clipToPadding="false"
-            android:paddingEnd="0dp" />
+            android:paddingEnd="50dp" />
     </androidx.leanback.widget.BrowseFrameLayout>
 </FrameLayout>
