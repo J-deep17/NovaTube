@@ -20,14 +20,6 @@ public class SearchTagsActivity extends LeanbackActivity {
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
-        // Intercept Fire TV Alexa / mic button on remote to trigger voice typing directly into keyboard
-        if (keyCode == KeyEvent.KEYCODE_SEARCH || keyCode == KeyEvent.KEYCODE_VOICE_ASSIST || keyCode == 231 || keyCode == 84) {
-            if (mFragment != null) {
-                mFragment.startRecognition();
-                return true;
-            }
-        }
-
         // Handle BACK key: dismiss keyboard first if visible without closing the search activity
         if (keyCode == KeyEvent.KEYCODE_BACK) {
             if (Helpers.isKeyboardShown(this)) {
@@ -47,9 +39,6 @@ public class SearchTagsActivity extends LeanbackActivity {
 
     @Override
     public boolean onKeyUp(int keyCode, KeyEvent event) {
-        if (keyCode == KeyEvent.KEYCODE_SEARCH || keyCode == KeyEvent.KEYCODE_VOICE_ASSIST || keyCode == 231 || keyCode == 84) {
-            return true;
-        }
         return super.onKeyUp(keyCode, event);
     }
 

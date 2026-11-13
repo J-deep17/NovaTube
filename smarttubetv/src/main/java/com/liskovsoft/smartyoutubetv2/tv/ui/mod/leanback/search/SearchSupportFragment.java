@@ -366,8 +366,6 @@ public class SearchSupportFragment extends Fragment {
                 if (mIsKeyboardAutoShowEnabled) {
                     Helpers.showKeyboardAlt(v.getContext(), v);
                 }
-            } else {
-                Helpers.hideKeyboard(v.getContext(), v);
             }
         });
         mSearchTextEditor.addTextChangedListener(new TextWatcher() {
