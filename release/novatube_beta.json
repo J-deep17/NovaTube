@@ -1,14 +1,33 @@
 {
   "package": {
-    "downloadUrl": "https://github.com/J-deep17/NovaTube/releases/download/v1.0.5/NovaTube_beta_32.79_universal.apk",
+    "downloadUrl": "https://github.com/J-deep17/NovaTube/releases/download/v1.0.6/NovaTube_beta_32.80_universal.apk",
     "downloadUrlList_armeabi-v7a": [
-      "https://github.com/J-deep17/NovaTube/releases/download/v1.0.5/NovaTube_beta_32.79_armeabi-v7a.apk"
+      "https://github.com/J-deep17/NovaTube/releases/download/v1.0.6/NovaTube_beta_32.80_armeabi-v7a.apk"
     ],
     "downloadUrlList_arm64-v8a": [
-      "https://github.com/J-deep17/NovaTube/releases/download/v1.0.5/NovaTube_beta_32.79_arm64-v8a.apk"
+      "https://github.com/J-deep17/NovaTube/releases/download/v1.0.6/NovaTube_beta_32.80_arm64-v8a.apk"
     ],
     "downloadUrlList": [
-      "https://github.com/J-deep17/NovaTube/releases/download/v1.0.5/NovaTube_beta_32.79_universal.apk"
+      "https://github.com/J-deep17/NovaTube/releases/download/v1.0.6/NovaTube_beta_32.80_universal.apk"
+    ]
+  },
+  "32.80": {
+    "versionCode": 2470,
+    "changelog": [
+      "🎤 Restored native Fire TV system keyboard Alexa voice dictation",
+      "🚫 Removed mic button interception so Fire OS IME receives push-to-talk dictation",
+      "⌨️ Retained physical keyboard Enter and remote submit support",
+      "🔒 Built and signed with permanent NovaTube release keystore"
+    ],
+    "downloadUrl": "https://github.com/J-deep17/NovaTube/releases/download/v1.0.6/NovaTube_beta_32.80_universal.apk",
+    "downloadUrlList_armeabi-v7a": [
+      "https://github.com/J-deep17/NovaTube/releases/download/v1.0.6/NovaTube_beta_32.80_armeabi-v7a.apk"
+    ],
+    "downloadUrlList_arm64-v8a": [
+      "https://github.com/J-deep17/NovaTube/releases/download/v1.0.6/NovaTube_beta_32.80_arm64-v8a.apk"
+    ],
+    "downloadUrlList": [
+      "https://github.com/J-deep17/NovaTube/releases/download/v1.0.6/NovaTube_beta_32.80_universal.apk"
     ]
   },
   "32.79": {

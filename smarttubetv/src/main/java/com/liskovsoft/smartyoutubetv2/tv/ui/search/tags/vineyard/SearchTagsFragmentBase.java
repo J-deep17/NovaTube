@@ -158,12 +158,6 @@ public abstract class SearchTagsFragmentBase extends SearchSupportFragment
         // You should avoid using it till there be a solution.
 
         int recognizerType = getSearchData().getSpeechRecognizerType();
-        if (recognizerType == SearchData.SPEECH_RECOGNIZER_SYSTEM) {
-            // Auto fallback on Fire TV / Redmi Fire TV or any device without Google SpeechRecognizer
-            if (Helpers.isAmazonFireTVDevice() || !SpeechRecognizer.isRecognitionAvailable(getContext())) {
-                recognizerType = SearchData.SPEECH_RECOGNIZER_INTENT;
-            }
-        }
 
         switch (recognizerType) {
             case SearchData.SPEECH_RECOGNIZER_SYSTEM:
