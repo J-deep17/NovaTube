@@ -1,17 +1,39 @@
 {
   "package": {
-    "downloadUrl": "https://github.com/J-deep17/NovaTube/releases/download/v1.0.8/NovaTube_stable_32.82_universal.apk",
+    "downloadUrl": "https://github.com/J-deep17/NovaTube/releases/download/v1.0.9/NovaTube_stable_32.83_universal.apk",
     "downloadUrlList_armeabi-v7a": [
-      "https://github.com/J-deep17/NovaTube/releases/download/v1.0.8/NovaTube_stable_32.82_armeabi-v7a.apk",
-      "https://github.com/J-deep17/NovaTube/releases/download/v1.0.8/NovaTube_stable_32.82_universal.apk"
+      "https://github.com/J-deep17/NovaTube/releases/download/v1.0.9/NovaTube_stable_32.83_armeabi-v7a.apk",
+      "https://github.com/J-deep17/NovaTube/releases/download/v1.0.9/NovaTube_stable_32.83_universal.apk"
     ],
     "downloadUrlList_arm64-v8a": [
-      "https://github.com/J-deep17/NovaTube/releases/download/v1.0.8/NovaTube_stable_32.82_arm64-v8a.apk",
-      "https://github.com/J-deep17/NovaTube/releases/download/v1.0.8/NovaTube_stable_32.82_universal.apk"
+      "https://github.com/J-deep17/NovaTube/releases/download/v1.0.9/NovaTube_stable_32.83_arm64-v8a.apk",
+      "https://github.com/J-deep17/NovaTube/releases/download/v1.0.9/NovaTube_stable_32.83_universal.apk"
     ],
     "downloadUrlList": [
-      "https://github.com/J-deep17/NovaTube/releases/download/v1.0.8/NovaTube_stable_32.82_universal.apk",
-      "https://github.com/J-deep17/NovaTube/releases/download/v1.0.8/NovaTube_stable_32.82_armeabi-v7a.apk"
+      "https://github.com/J-deep17/NovaTube/releases/download/v1.0.9/NovaTube_stable_32.83_universal.apk",
+      "https://github.com/J-deep17/NovaTube/releases/download/v1.0.9/NovaTube_stable_32.83_armeabi-v7a.apk"
+    ]
+  },
+  "32.83": {
+    "versionCode": 2473,
+    "changelog": [
+      "🔄 Reverted custom on-screen keyboard to restored stable native TV layout",
+      "🎤 Fixed Fire TV voice-to-search & eliminated Alexa App Store redirect",
+      "⌨️ Auto-focus search text field with immediate keyboard voice dictation",
+      "🚀 High-speed OTA updates with 64KB buffering and 20-min timeout"
+    ],
+    "downloadUrl": "https://github.com/J-deep17/NovaTube/releases/download/v1.0.9/NovaTube_stable_32.83_universal.apk",
+    "downloadUrlList_armeabi-v7a": [
+      "https://github.com/J-deep17/NovaTube/releases/download/v1.0.9/NovaTube_stable_32.83_armeabi-v7a.apk",
+      "https://github.com/J-deep17/NovaTube/releases/download/v1.0.9/NovaTube_stable_32.83_universal.apk"
+    ],
+    "downloadUrlList_arm64-v8a": [
+      "https://github.com/J-deep17/NovaTube/releases/download/v1.0.9/NovaTube_stable_32.83_arm64-v8a.apk",
+      "https://github.com/J-deep17/NovaTube/releases/download/v1.0.9/NovaTube_stable_32.83_universal.apk"
+    ],
+    "downloadUrlList": [
+      "https://github.com/J-deep17/NovaTube/releases/download/v1.0.9/NovaTube_stable_32.83_universal.apk",
+      "https://github.com/J-deep17/NovaTube/releases/download/v1.0.9/NovaTube_stable_32.83_armeabi-v7a.apk"
     ]
   },
   "32.82": {

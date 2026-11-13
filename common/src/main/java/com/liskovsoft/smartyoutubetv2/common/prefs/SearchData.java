@@ -66,6 +66,9 @@ public class SearchData {
     }
 
     public boolean isKeyboardAutoShowEnabled() {
+        if (Helpers.isAmazonFireTVDevice()) {
+            return true;
+        }
         return mIsKeyboardAutoShowEnabled;
     }
 

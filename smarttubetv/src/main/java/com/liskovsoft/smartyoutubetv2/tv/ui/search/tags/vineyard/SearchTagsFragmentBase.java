@@ -302,6 +302,11 @@ public abstract class SearchTagsFragmentBase extends SearchSupportFragment
     @SuppressWarnings("deprecation")
     private final SpeechRecognitionCallback mDefaultCallback = () -> {
         if (isAdded()) {
+            if (Helpers.isAmazonFireTVDevice() || !SpeechRecognizer.isRecognitionAvailable(getContext())) {
+                showKeyboard();
+                return;
+            }
+
             if (PermissionHelpers.hasMicPermissions(getContext())) {
                 MessageHelpers.showMessage(getContext(), R.string.disable_mic_permission);
             }

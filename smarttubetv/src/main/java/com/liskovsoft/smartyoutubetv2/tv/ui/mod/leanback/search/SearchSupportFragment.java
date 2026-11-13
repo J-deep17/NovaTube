@@ -363,7 +363,7 @@ public class SearchSupportFragment extends Fragment {
             }
 
             if (focused) {
-                if (mIsKeyboardAutoShowEnabled) {
+                if (mIsKeyboardAutoShowEnabled || Helpers.isAmazonFireTVDevice()) {
                     Helpers.showKeyboardAlt(v.getContext(), v);
                 }
             }
@@ -455,6 +455,13 @@ public class SearchSupportFragment extends Fragment {
                 previousListener.onFocusChange(v, focused);
             }
         });
+        mSpeechOrbView.setOnOrbClickedListener(v -> {
+            if (Helpers.isAmazonFireTVDevice() || !SpeechRecognizer.isRecognitionAvailable(getContext())) {
+                showKeyboard();
+            } else {
+                startRecognition();
+            }
+        });
 
         // End MOD
 
@@ -495,130 +502,7 @@ public class SearchSupportFragment extends Fragment {
         if (null != mProvider) {
             onSetSearchResultProvider();
         }
-        setupOnScreenKeyboard(root);
         return root;
-    }
-
-    private void setupOnScreenKeyboard(View root) {
-        if (root == null || getContext() == null) {
-            return;
-        }
-
-        View keyboardContainer = root.findViewById(com.liskovsoft.smartyoutubetv2.tv.R.id.youtube_tv_keyboard_container);
-        if (keyboardContainer == null) {
-            return;
-        }
-
-        String pkg = getContext().getPackageName();
-
-        // Letters a to z
-        for (char c = 'a'; c <= 'z'; c++) {
-            final String letter = String.valueOf(c);
-            int resId = getResources().getIdentifier("yt_key_" + letter, "id", pkg);
-            if (resId != 0) {
-                View keyView = root.findViewById(resId);
-                if (keyView != null) {
-                    keyView.setOnClickListener(v -> {
-                        String current = getSearchBarText();
-                        setSearchQuery(current + letter, false);
-                    });
-                }
-            }
-        }
-
-        // Numbers 0 to 9
-        for (int i = 0; i <= 9; i++) {
-            final String digit = String.valueOf(i);
-            int resId = getResources().getIdentifier("yt_key_" + digit, "id", pkg);
-            if (resId != 0) {
-                View keyView = root.findViewById(resId);
-                if (keyView != null) {
-                    keyView.setOnClickListener(v -> {
-                        String current = getSearchBarText();
-                        setSearchQuery(current + digit, false);
-                    });
-                }
-            }
-        }
-
-        // Action key: Space
-        View keySpace = root.findViewById(com.liskovsoft.smartyoutubetv2.tv.R.id.yt_key_space);
-        if (keySpace != null) {
-            keySpace.setOnClickListener(v -> {
-                String current = getSearchBarText();
-                setSearchQuery(current + " ", false);
-            });
-        }
-
-        // Action key: Backspace
-        View keyBackspace = root.findViewById(com.liskovsoft.smartyoutubetv2.tv.R.id.yt_key_backspace);
-        if (keyBackspace != null) {
-            keyBackspace.setOnClickListener(v -> {
-                String current = getSearchBarText();
-                if (!TextUtils.isEmpty(current)) {
-                    String updated = current.substring(0, current.length() - 1);
-                    setSearchQuery(updated, false);
-                }
-            });
-        }
-
-        // Action key: Clear
-        View keyClear = root.findViewById(com.liskovsoft.smartyoutubetv2.tv.R.id.yt_key_clear);
-        if (keyClear != null) {
-            keyClear.setOnClickListener(v -> {
-                setSearchQuery("", false);
-                if (mProvider != null) {
-                    mProvider.onQueryTextChange("");
-                }
-            });
-        }
-
-        // Action key: Search
-        View keySearch = root.findViewById(com.liskovsoft.smartyoutubetv2.tv.R.id.yt_key_search);
-        if (keySearch != null) {
-            keySearch.setOnClickListener(v -> {
-                String current = getSearchBarText();
-                if (!TextUtils.isEmpty(current)) {
-                    submitQuery(current);
-                    focusOnResults();
-                }
-            });
-        }
-
-        // In-app microphone button
-        if (mSpeechOrbView != null) {
-            mSpeechOrbView.setOnClickListener(v -> startRecognition());
-        }
-
-        // Clear button on search bar
-        View clearBtn = mSearchBar != null ? mSearchBar.findViewById(com.liskovsoft.smartyoutubetv2.tv.R.id.lb_search_bar_clear_button) : null;
-        if (clearBtn != null && mSearchTextEditor != null) {
-            clearBtn.setOnClickListener(v -> {
-                setSearchQuery("", false);
-                if (mProvider != null) {
-                    mProvider.onQueryTextChange("");
-                }
-            });
-            mSearchTextEditor.addTextChangedListener(new TextWatcher() {
-                @Override
-                public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-                @Override
-                public void onTextChanged(CharSequence s, int start, int before, int count) {
-                    clearBtn.setVisibility(TextUtils.isEmpty(s) ? View.GONE : View.VISIBLE);
-                }
-                @Override
-                public void afterTextChanged(Editable s) {}
-            });
-        }
-
-        // Connect D-pad navigation from search bar down to first keyboard key
-        View keyA = root.findViewById(com.liskovsoft.smartyoutubetv2.tv.R.id.yt_key_a);
-        if (keyA != null && mSearchTextEditor != null) {
-            mSearchTextEditor.setNextFocusDownId(com.liskovsoft.smartyoutubetv2.tv.R.id.yt_key_a);
-        }
-        if (keyA != null && mSearchBar != null) {
-            mSearchBar.setNextFocusDownId(com.liskovsoft.smartyoutubetv2.tv.R.id.yt_key_a);
-        }
     }
 
     private void resultsAvailable() {
@@ -941,6 +825,13 @@ public class SearchSupportFragment extends Fragment {
 
     public void focusOnSearchField() {
         mSearchTextEditor.requestFocus(); // MOD: focus on search field
+    }
+
+    public void showKeyboard() {
+        if (mSearchTextEditor != null && getContext() != null) {
+            mSearchTextEditor.requestFocus();
+            Helpers.showKeyboardAlt(getContext(), mSearchTextEditor);
+        }
     }
 
     public void hideKeyboard() {

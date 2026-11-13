@@ -26,8 +26,6 @@
             android:focusable="true"
             android:focusableInTouchMode="false"
             >
-        <!-- Should be commented out? Fix voice search activation after fragment restore? -->
-        <requestFocus/>
     </androidx.leanback.widget.SpeechOrbView>
 
     <!-- MOD: rounded search bg (old value: lb_in_app_search_bg) -->
@@ -63,7 +61,6 @@
                     android:layout_centerVertical="true"
                     android:cursorVisible="true"
                     android:layout_toEndOf="@+id/lb_search_bar_badge"
-                    android:layout_toStartOf="@+id/lb_search_bar_clear_button"
                     android:editable="true"
                     android:background="@null"
                     android:fontFamily="sans-serif"
@@ -77,22 +74,9 @@
                     android:textColorHint="@color/lb_search_bar_hint"
                     android:textCursorDrawable="@drawable/search_bar_cursor"
                     android:hint="@string/lb_search_bar_hint"
-                    android:textSize="@dimen/lb_search_bar_text_size"/>
-
-        <ImageView
-                android:id="@+id/lb_search_bar_clear_button"
-                android:layout_width="28dp"
-                android:layout_height="28dp"
-                android:layout_alignParentEnd="true"
-                android:layout_centerVertical="true"
-                android:layout_marginEnd="10dp"
-                android:src="@drawable/ic_clear_text"
-                android:tint="#888888"
-                android:focusable="true"
-                android:focusableInTouchMode="true"
-                android:background="?android:attr/selectableItemBackgroundBorderless"
-                android:contentDescription="Clear"
-                android:visibility="gone" />
+                    android:textSize="@dimen/lb_search_bar_text_size">
+            <requestFocus/>
+        </androidx.leanback.widget.SearchEditText>
     </RelativeLayout>
 
     <!-- NOTE: You need to create different icon sizes to overcome icon oversize bug -->
