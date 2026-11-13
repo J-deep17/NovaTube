@@ -70,11 +70,18 @@ jobs:
       - name: Verify APK signatures
         run: |
           set -euo pipefail
+          SDK_ROOT="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-/usr/local/lib/android/sdk}}"
+          APKSIGNER=$(find "$SDK_ROOT/build-tools" -name apksigner -type f | sort -V | tail -n 1)
+          if [ -z "$APKSIGNER" ] || [ ! -x "$APKSIGNER" ]; then
+            echo "::error::apksigner not found in Android build-tools"
+            exit 1
+          fi
+          echo "Using apksigner at: $APKSIGNER"
           APKS=$(find smarttubetv/build/outputs/apk -type f -name '*.apk')
           test -n "$APKS"
           while IFS= read -r apk; do
             echo "Verifying signature for: $apk"
-            apksigner verify --verbose --print-certs "$apk"
+            "$APKSIGNER" verify --verbose --print-certs "$apk"
           done <<< "$APKS"
 
       - name: Determine Tag
