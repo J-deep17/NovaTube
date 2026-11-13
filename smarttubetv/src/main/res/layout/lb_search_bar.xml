@@ -91,7 +91,7 @@
                 android:focusable="true"
                 android:focusableInTouchMode="true"
                 android:background="?android:attr/selectableItemBackgroundBorderless"
-                android:contentDescription="@string/dialog_clear"
+                android:contentDescription="Clear"
                 android:visibility="gone" />
     </RelativeLayout>
 
