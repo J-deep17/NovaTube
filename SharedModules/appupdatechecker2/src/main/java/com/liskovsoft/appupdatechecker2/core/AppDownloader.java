@@ -84,12 +84,20 @@ public class AppDownloader {
 
         private String downloadPackage(String uri) {
             File cacheDir = FileHelpers.getCacheDir(mContext);
+            if (cacheDir == null && mContext != null) {
+                cacheDir = mContext.getExternalCacheDir();
+            }
+            if (cacheDir == null && mContext != null) {
+                cacheDir = mContext.getCacheDir();
+            }
             if (cacheDir == null) {
+                Log.e(TAG, "Cannot get cache directory for update download");
                 return null;
             }
             File outputFile = new File(cacheDir, CURRENT_APK);
             String path = null;
             try {
+                Log.d(TAG, "Attempting update download from: " + uri);
                 DownloadManager manager = new DownloadManager(mContext);
                 MyRequest request = new MyRequest(Uri.parse(uri));
                 request.setDestinationUri(Uri.fromFile(outputFile));
@@ -98,19 +106,27 @@ public class AppDownloader {
                     int size = manager.getSizeForDownloadedFile(id);
                     Uri destination = manager.getUriForDownloadedFile(id);
 
-                    if (destination != null) {
-                        // It could be a web page instead of apk
-                        if (size > mMinApkSizeBytes) {
+                    if (destination != null && destination.getPath() != null) {
+                        File downloadedFile = new File(destination.getPath());
+                        long diskSize = downloadedFile.exists() ? downloadedFile.length() : 0;
+                        Log.d(TAG, "Download finished. Disk size: " + diskSize + ", reported size: " + size);
+
+                        // Ensure file exists and meets minimum APK threshold (~1MB)
+                        if (diskSize > mMinApkSizeBytes || size > mMinApkSizeBytes) {
                             path = destination.getPath();
+                            Log.d(TAG, "Valid update package downloaded to: " + path);
                         } else { // do cleanup
+                            Log.w(TAG, "Downloaded file too small (" + diskSize + " bytes), deleting...");
                             FileHelpers.delete(destination.getPath());
                         }
+                    } else {
+                        Log.e(TAG, "Destination is null for URL: " + uri);
                     }
-                } catch (IllegalStateException ex) { // 403 or something else
-                    Log.d(TAG, ex.toString());
+                } catch (Exception ex) {
+                    Log.e(TAG, "Download failure for " + uri + ": " + ex.getMessage(), ex);
                 }
-            } catch (IllegalStateException ex) { // CANNOT OBTAIN WRITE PERMISSIONS
-                Log.e(TAG, ex.getMessage(), ex);
+            } catch (Exception ex) {
+                Log.e(TAG, "Setup failure for " + uri + ": " + ex.getMessage(), ex);
             }
             return path;
         }

@@ -1,14 +1,40 @@
 {
   "package": {
-    "downloadUrl": "https://github.com/J-deep17/NovaTube/releases/download/v1.0.7/NovaTube_stable_32.81_universal.apk",
+    "downloadUrl": "https://github.com/J-deep17/NovaTube/releases/download/v1.0.8/NovaTube_stable_32.82_universal.apk",
     "downloadUrlList_armeabi-v7a": [
-      "https://github.com/J-deep17/NovaTube/releases/download/v1.0.7/NovaTube_stable_32.81_armeabi-v7a.apk"
+      "https://github.com/J-deep17/NovaTube/releases/download/v1.0.8/NovaTube_stable_32.82_armeabi-v7a.apk",
+      "https://github.com/J-deep17/NovaTube/releases/download/v1.0.8/NovaTube_stable_32.82_universal.apk"
     ],
     "downloadUrlList_arm64-v8a": [
-      "https://github.com/J-deep17/NovaTube/releases/download/v1.0.7/NovaTube_stable_32.81_arm64-v8a.apk"
+      "https://github.com/J-deep17/NovaTube/releases/download/v1.0.8/NovaTube_stable_32.82_arm64-v8a.apk",
+      "https://github.com/J-deep17/NovaTube/releases/download/v1.0.8/NovaTube_stable_32.82_universal.apk"
     ],
     "downloadUrlList": [
-      "https://github.com/J-deep17/NovaTube/releases/download/v1.0.7/NovaTube_stable_32.81_universal.apk"
+      "https://github.com/J-deep17/NovaTube/releases/download/v1.0.8/NovaTube_stable_32.82_universal.apk",
+      "https://github.com/J-deep17/NovaTube/releases/download/v1.0.8/NovaTube_stable_32.82_armeabi-v7a.apk"
+    ]
+  },
+  "32.82": {
+    "versionCode": 2472,
+    "changelog": [
+      "🚀 Fix OTA update download failure ('Install path is null')",
+      "⚡ High-speed 64KB download buffer & extended 20-minute TV timeout",
+      "🔄 Reliable HTTP redirect handling for GitHub release assets",
+      "🔍 YouTube TV style on-screen keyboard with full D-pad remote navigation",
+      "🎤 In-app microphone button for direct voice search with instant field display"
+    ],
+    "downloadUrl": "https://github.com/J-deep17/NovaTube/releases/download/v1.0.8/NovaTube_stable_32.82_universal.apk",
+    "downloadUrlList_armeabi-v7a": [
+      "https://github.com/J-deep17/NovaTube/releases/download/v1.0.8/NovaTube_stable_32.82_armeabi-v7a.apk",
+      "https://github.com/J-deep17/NovaTube/releases/download/v1.0.8/NovaTube_stable_32.82_universal.apk"
+    ],
+    "downloadUrlList_arm64-v8a": [
+      "https://github.com/J-deep17/NovaTube/releases/download/v1.0.8/NovaTube_stable_32.82_arm64-v8a.apk",
+      "https://github.com/J-deep17/NovaTube/releases/download/v1.0.8/NovaTube_stable_32.82_universal.apk"
+    ],
+    "downloadUrlList": [
+      "https://github.com/J-deep17/NovaTube/releases/download/v1.0.8/NovaTube_stable_32.82_universal.apk",
+      "https://github.com/J-deep17/NovaTube/releases/download/v1.0.8/NovaTube_stable_32.82_armeabi-v7a.apk"
     ]
   },
   "32.81": {

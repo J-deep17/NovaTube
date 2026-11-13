@@ -32,6 +32,7 @@ import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Progress listener example:
@@ -58,7 +59,7 @@ public final class DownloadManager {
     private InputStream mResponseStream;
     private int mTotalLen = 0;
     private Uri mFileUri;
-    private static final long MAX_DOWN_TIME_MS = 60 * 1_000; // 1 minute
+    private static final long MAX_DOWN_TIME_MS = 20 * 60 * 1_000; // 20 minutes
     private static final String USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.114 Safari/537.36";
     private static final String ACCEPT_CONTENT = "*/*";
     private final Map<String, String> mHeaders = new HashMap<>();
@@ -79,13 +80,29 @@ public final class DownloadManager {
 
         Log.d(TAG, "Starting download %s...", url);
 
-        Response response = OkHttpManager.instance().doRequest(url, mClient, mHeaders);
+        Request.Builder reqBuilder = new Request.Builder().url(url);
+        for (Map.Entry<String, String> entry : mHeaders.entrySet()) {
+            reqBuilder.header(entry.getKey(), entry.getValue());
+        }
+        Request okHttpRequest = reqBuilder.build();
 
-        if (response == null || response.body() == null) {
-            throw new IllegalStateException("Error: bad response");
+        Response response;
+        try {
+            response = mClient.newCall(okHttpRequest).execute();
+        } catch (IOException ex) {
+            Log.e(TAG, "Failed to connect to " + url + ": " + ex.getMessage(), ex);
+            throw new IllegalStateException("Connection failed: " + ex.getMessage(), ex);
         }
 
-        mResponseStream = new BufferedInputStream(response.body().byteStream());
+        if (response == null || !response.isSuccessful() || response.body() == null) {
+            int code = response != null ? response.code() : -1;
+            if (response != null) {
+                response.close();
+            }
+            throw new IllegalStateException("HTTP error response code: " + code + " for URL: " + url);
+        }
+
+        mResponseStream = new BufferedInputStream(response.body().byteStream(), 65536);
 
         if (mRequest.mDestinationUri != null) {
             // NOTE: actual downloading is happen when reading the stream to file
@@ -148,23 +165,26 @@ public final class DownloadManager {
             @Override
             public Response intercept(Chain chain) throws IOException {
                 Response originalResponse = chain.proceed(chain.request());
-                return originalResponse.newBuilder().body(new ProgressResponseBody(originalResponse.body(), mRequest.mProgressListener)).build();
+                if (mRequest != null && mRequest.mProgressListener != null) {
+                    return originalResponse.newBuilder().body(new ProgressResponseBody(originalResponse.body(), mRequest.mProgressListener)).build();
+                }
+                return originalResponse;
             }
         };
 
-        //Builder builder = new OkHttpClient.Builder()
-        //        .addNetworkInterceptor(intercept);
-        //
-        //OkHttpCommons.setupBuilder(builder);
-
         Builder builder = OkHttpManager.instance().getClient().newBuilder()
-                .addNetworkInterceptor(intercept);
+                .connectTimeout(60, TimeUnit.SECONDS)
+                .readTimeout(180, TimeUnit.SECONDS)
+                .writeTimeout(60, TimeUnit.SECONDS)
+                .followRedirects(true)
+                .followSslRedirects(true)
+                .addInterceptor(intercept);
 
         return builder.build();
     }
 
     private Uri streamToFile(InputStream is, Uri destination) {
-        if (destination == null) {
+        if (destination == null || destination.getPath() == null) {
             return null;
         }
 
@@ -173,9 +193,18 @@ public final class DownloadManager {
         try {
             long downStartTimeMs = System.currentTimeMillis();
 
-            fos = new FileOutputStream(destination.getPath());
+            File destFile = new File(destination.getPath());
+            File parentDir = destFile.getParentFile();
+            if (parentDir != null && !parentDir.exists()) {
+                parentDir.mkdirs();
+            }
+            if (destFile.exists()) {
+                destFile.delete();
+            }
 
-            byte[] buffer = new byte[1024];
+            fos = new FileOutputStream(destFile);
+
+            byte[] buffer = new byte[65536];
             int len1;
             int totalLen = 0;
             while ((len1 = is.read(buffer)) != -1) {
@@ -183,14 +212,22 @@ public final class DownloadManager {
                 fos.write(buffer, 0, len1);
 
                 if (System.currentTimeMillis() - downStartTimeMs > MAX_DOWN_TIME_MS) {
-                    // Oops. Downloading is taken too much time. Cancelling...
+                    Log.e(TAG, "Download timed out after " + MAX_DOWN_TIME_MS + " ms");
                     totalLen = 0;
                     break;
                 }
             }
 
+            fos.flush();
             mTotalLen = totalLen;
+            Log.d(TAG, "Finished streamToFile, downloaded bytes: " + totalLen + ", file length: " + destFile.length());
+
+            if (totalLen == 0) {
+                destFile.delete();
+                return null;
+            }
         } catch (IOException ex) {
+            Log.e(TAG, "streamToFile IOException: " + ex.getMessage(), ex);
             throw new IllegalStateException(ex);
         } finally {
             FileHelpers.closeStream(fos);
