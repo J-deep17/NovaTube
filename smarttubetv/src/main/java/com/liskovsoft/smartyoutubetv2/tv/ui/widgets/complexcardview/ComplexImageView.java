@@ -2,6 +2,7 @@ package com.liskovsoft.smartyoutubetv2.tv.ui.widgets.complexcardview;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.graphics.drawable.GradientDrawable;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
@@ -109,7 +110,10 @@ public class ComplexImageView extends RelativeLayout {
             return;
         }
 
-        mBadgeText.setBackgroundColor(color);
+        GradientDrawable badgeBackground = new GradientDrawable();
+        badgeBackground.setColor(color);
+        badgeBackground.setCornerRadius(6f * getResources().getDisplayMetrics().density);
+        mBadgeText.setBackground(badgeBackground);
     }
 
     /**
