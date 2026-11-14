@@ -8,7 +8,7 @@
     <color name="default_background_gradient_end">#0f0f0f</color>
     <color name="fastlane_background">#FF0000</color>
     <color name="fastlane_background_dark">#0f0f0f</color>
-    <color name="default_light_grey">#AAAAAA</color>
+    <color name="default_light_grey">#B8B8B8</color>
     <color name="search_opaque">#222222</color>
     <color name="search_opaque_yellow">#ffaa3f</color>
 
