@@ -388,19 +388,20 @@ public class SearchSupportFragment extends Fragment {
         // Handle physical keyboard typing and remote Enter / Done keys
         mSearchTextEditor.setOnKeyListener((v, keyCode, event) -> {
             if (keyCode == KeyEvent.KEYCODE_ENTER || keyCode == KeyEvent.KEYCODE_NUMPAD_ENTER) {
-                if (event.getAction() == KeyEvent.ACTION_UP) {
-                    String query = getSearchBarText();
-                    if (!TextUtils.isEmpty(query)) {
-                        submitQuery(query);
-                        Helpers.hideKeyboard(getContext(), v);
-                        focusOnResults();
-                        return true;
-                    } else {
-                        Helpers.showKeyboardAlt(v.getContext(), v);
-                        return true;
-                    }
+                // Let the IME receive ACTION_DOWN. Consuming it can prevent the keyboard
+                // from committing voice-dictated text or dispatching its editor action.
+                if (event.getAction() != KeyEvent.ACTION_UP) {
+                    return false;
                 }
-                return true;
+
+                String query = getSearchBarText();
+                if (!TextUtils.isEmpty(query)) {
+                    submitQuery(query);
+                    Helpers.hideKeyboard(getContext(), v);
+                    focusOnResults();
+                    return true;
+                }
+                return false;
             }
             return false;
         });
