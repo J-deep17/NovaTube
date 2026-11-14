@@ -6,6 +6,8 @@ import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.SystemClock;
+import android.provider.Settings;
 import android.speech.RecognizerIntent;
 import android.speech.SpeechRecognizer;
 import android.text.Editable;
@@ -18,6 +20,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnFocusChangeListener;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.view.WindowManager;
 import android.view.inputmethod.CompletionInfo;
 import android.view.inputmethod.EditorInfo;
@@ -43,11 +46,13 @@ import com.liskovsoft.sharedutils.helpers.Helpers;
 import com.liskovsoft.sharedutils.helpers.KeyHelpers;
 import com.liskovsoft.sharedutils.helpers.MessageHelpers;
 import com.liskovsoft.smartyoutubetv2.common.app.presenters.SearchPresenter;
+import com.liskovsoft.smartyoutubetv2.common.utils.SearchSubmitGuard;
 import com.liskovsoft.smartyoutubetv2.common.utils.Utils;
 import com.liskovsoft.smartyoutubetv2.tv.BuildConfig;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 
@@ -232,6 +237,11 @@ public class SearchSupportFragment extends Fragment {
     private boolean mIsKeyboardAutoShowEnabled;
     private boolean mIsKeyboardFixEnabled;
     private boolean mIsTypingCorrectionDisabled;
+    /** Single gate for every submit coming from the text field: no duplicates, no submit while the IME is still committing text */
+    private static final long KEYBOARD_RESTORE_DELAY_MS = 200;
+    private final SearchSubmitGuard mSubmitGuard = new SearchSubmitGuard();
+    private boolean mRestoreKeyboardOnWindowFocus;
+    private ViewTreeObserver.OnWindowFocusChangeListener mWindowFocusListener;
 
     private SpeechRecognizer mSpeechRecognizer;
 
@@ -381,23 +391,22 @@ public class SearchSupportFragment extends Fragment {
 
             @Override
             public void afterTextChanged(Editable s) {
+                // Typed, dictated by the system keyboard or set from code: all of them restart the settle window
+                mSubmitGuard.onTextChanged(SystemClock.uptimeMillis());
                 Utils.enableScreensaver(getActivity(), true);
             }
         });
 
-        // Handle physical keyboard typing and remote Enter / Done keys
+        // Handle physical keyboard typing and remote Enter / Done keys.
+        // NOTE: ENTER down/up are still consumed here exactly as before (the remote Select / Enter path is
+        // unchanged); only the submit decision moved into submitFromEditor().
         mSearchTextEditor.setOnKeyListener((v, keyCode, event) -> {
             if (keyCode == KeyEvent.KEYCODE_ENTER || keyCode == KeyEvent.KEYCODE_NUMPAD_ENTER) {
                 if (event.getAction() == KeyEvent.ACTION_UP) {
-                    String query = getSearchBarText();
-                    if (!TextUtils.isEmpty(query)) {
-                        submitQuery(query);
-                        Helpers.hideKeyboard(getContext(), v);
-                        focusOnResults();
-                        return true;
-                    } else {
+                    if (TextUtils.isEmpty(getSearchBarText())) {
                         Helpers.showKeyboardAlt(v.getContext(), v);
-                        return true;
+                    } else {
+                        submitFromEditor(v);
                     }
                 }
                 return true;
@@ -408,11 +417,8 @@ public class SearchSupportFragment extends Fragment {
         mSearchTextEditor.setOnEditorActionListener((textView, actionId, keyEvent) -> {
             if (actionId == EditorInfo.IME_ACTION_SEARCH || actionId == EditorInfo.IME_NULL
                     || actionId == EditorInfo.IME_ACTION_GO || actionId == EditorInfo.IME_ACTION_DONE) {
-                String query = getSearchBarText();
-                if (!TextUtils.isEmpty(query)) {
-                    submitQuery(query);
-                    Helpers.hideKeyboard(getContext(), textView);
-                    focusOnResults();
+                if (!TextUtils.isEmpty(getSearchBarText())) {
+                    submitFromEditor(textView);
                     return true;
                 }
             }
@@ -420,8 +426,20 @@ public class SearchSupportFragment extends Fragment {
         });
 
         if (mIsTypingCorrectionDisabled) {
-            mSearchTextEditor.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
+            int inputType = InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS;
+
+            // The password variation is a known trick to switch off corrections, but IMEs commonly hide their
+            // voice/dictation key for password fields (AOSP LatinIME does). Keep it on non-Fire devices as before;
+            // on Fire TV use the dedicated flag so the keyboard's mic stays available.
+            if (!Helpers.isAmazonFireTVDevice()) {
+                inputType |= InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD;
+            }
+
+            mSearchTextEditor.setInputType(inputType);
         }
+
+        setupKeyboardFocusRestore();
+        logActiveInputMethod();
         // BUGFIX: focus lost with keyboard???
         //mSearchTextEditor.setOnKeyboardDismissListener(this::focusOnSearchField);
 
@@ -911,6 +929,102 @@ public class SearchSupportFragment extends Fragment {
         if (mProvider.onQueryTextChange(searchQuery)) {
             mStatus &= ~QUERY_COMPLETE;
         }
+    }
+
+    /**
+     * Single entry for submits coming from the text field (remote Enter, keyboard search/done action).
+     * <ul>
+     *     <li>Does nothing while the text has only just changed: the system keyboard may still be
+     *     committing typed or dictated text, and submitting now could search an incomplete phrase.
+     *     The user's next deliberate Enter submits.</li>
+     *     <li>Suppresses a repeated submit of the same query (an IME may send both an editor
+     *     action and an ENTER key event for one press).</li>
+     * </ul>
+     */
+    private void submitFromEditor(View editor) {
+        long now = SystemClock.uptimeMillis();
+
+        if (mSubmitGuard.isTextSettling(now)) {
+            if (DEBUG) Log.v(TAG, "submitFromEditor: text is still settling, ignoring");
+            return;
+        }
+
+        String query = getSearchBarText();
+
+        if (!mSubmitGuard.tryAcquire(query, now)) {
+            if (DEBUG) Log.v(TAG, "submitFromEditor: blank or duplicate query, ignoring");
+            return;
+        }
+
+        submitQuery(query);
+        Helpers.hideKeyboard(getContext(), editor);
+        focusOnResults();
+    }
+
+    /**
+     * When something takes the window focus away (e.g. a system overlay) and gives it back, the IME
+     * is restarted and the keyboard of a still focused search field may stay hidden. Fire TV shows the
+     * keyboard whenever the field gains focus (see the focus listener), so show it again in that case.
+     */
+    private void setupKeyboardFocusRestore() {
+        if (!Helpers.isAmazonFireTVDevice() || mSearchTextEditor == null) {
+            return;
+        }
+
+        mWindowFocusListener = hasWindowFocus -> {
+            if (mSearchTextEditor == null) {
+                return;
+            }
+
+            if (!hasWindowFocus) {
+                mRestoreKeyboardOnWindowFocus = mSearchTextEditor.hasFocus();
+            } else if (mRestoreKeyboardOnWindowFocus) {
+                mRestoreKeyboardOnWindowFocus = false;
+
+                // Give the IME time to restart its input connection first
+                mSearchTextEditor.postDelayed(() -> {
+                    if (isAdded() && mSearchTextEditor != null && mSearchTextEditor.hasFocus()) {
+                        Helpers.showKeyboardAlt(getContext(), mSearchTextEditor);
+                    }
+                }, KEYBOARD_RESTORE_DELAY_MS);
+            }
+        };
+
+        mSearchTextEditor.getViewTreeObserver().addOnWindowFocusChangeListener(mWindowFocusListener);
+    }
+
+    /**
+     * Evidence for the next device test: which keyboard is active for the search field.
+     * Fire TV keyboard dictation depends on the system keyboard and on the device language.
+     * Never logs the query.
+     */
+    private void logActiveInputMethod() {
+        if (getContext() == null) {
+            return;
+        }
+
+        try {
+            String ime = Settings.Secure.getString(getContext().getContentResolver(), Settings.Secure.DEFAULT_INPUT_METHOD);
+            Log.d(TAG, "Search field keyboard: " + ime + ", fireTv=" + Helpers.isAmazonFireTVDevice() + ", locale=" + Locale.getDefault());
+        } catch (Exception e) {
+            Log.d(TAG, "Can't read the active keyboard: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public void onDestroyView() {
+        if (mWindowFocusListener != null && mSearchTextEditor != null) {
+            ViewTreeObserver observer = mSearchTextEditor.getViewTreeObserver();
+
+            if (observer.isAlive()) {
+                observer.removeOnWindowFocusChangeListener(mWindowFocusListener);
+            }
+        }
+
+        mWindowFocusListener = null;
+        mRestoreKeyboardOnWindowFocus = false;
+
+        super.onDestroyView();
     }
 
     protected void submitQuery(String query) {

@@ -1,6 +1,7 @@
 package com.liskovsoft.leanbackassistant.search;
 
 import android.app.Activity;
+import android.app.SearchManager;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -42,9 +43,37 @@ public class SearchableActivity extends Activity {
                     Log.e(TAG, "Cannot find video id inside the url: %s", uri);
                 }
             }
+        } else {
+            forwardTextQuery(getIntent());
         }
 
         finish();
+    }
+
+    /**
+     * ACTION_SEARCH delivered without a content uri carries only the query text
+     * ({@link SearchManager#QUERY}). It used to be dropped here silently; open the in-app search instead.
+     * <p>
+     * The query itself is never logged: it may be private speech input.
+     */
+    private void forwardTextQuery(Intent searchIntent) {
+        if (searchIntent == null || !Intent.ACTION_SEARCH.equals(searchIntent.getAction())) {
+            return;
+        }
+
+        String url = SearchQueryUrl.build(searchIntent.getCharSequenceExtra(SearchManager.QUERY));
+
+        if (url == null) {
+            Log.d(TAG, "ACTION_SEARCH without a query text. Nothing to forward.");
+            return;
+        }
+
+        Intent intent = AppUtil.getInstance(this).createAppIntent(url);
+
+        if (intent != null) {
+            Log.d(TAG, "Forwarding ACTION_SEARCH text query to the in-app search");
+            startActivity(intent);
+        }
     }
 
     private String obtainVideoOrChannelUrl(int id) {
