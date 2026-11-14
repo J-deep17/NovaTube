@@ -126,6 +126,14 @@
                 <data android:scheme="vnd.youtube"/>
                 <data android:scheme="vnd.youtube.launch"/>
             </intent-filter>
+            <!-- Standard voice-search form of MEDIA_PLAY_FROM_SEARCH: query text in extras, no data uri.
+                 The filters above only match when a youtube/http(s) uri is attached.
+                 ACTION_SEARCH is deliberately NOT declared here: it is owned by the searchable
+                 activity of the leanbackassistant module (see its AndroidManifest). -->
+            <intent-filter>
+                <action android:name="android.media.action.MEDIA_PLAY_FROM_SEARCH"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.SEND"/>
                 <category android:name="android.intent.category.DEFAULT"/>

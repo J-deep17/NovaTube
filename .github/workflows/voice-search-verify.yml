@@ -1,0 +1,88 @@
+name: Verify search / voice-typing changes
+
+# Verification only. This workflow:
+#   - has no access to signing secrets and never signs anything
+#   - never publishes a release, never touches OTA manifests, never creates tags
+#   - builds a DEBUG apk of the *beta* flavor (applicationId tv.novatube.app.beta) and runs targeted unit tests.
+#     The beta package installs BESIDE the production app (tv.novatube.app); it can never replace,
+#     conflict with or require uninstalling the production install (debug signature != release key).
+on:
+  pull_request:
+    branches: [ "master" ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          submodules: recursive
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654 # v5.2.0
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: 'gradle'
+
+      - name: Grant Gradle permissions
+        run: chmod +x gradlew
+
+      - name: Unit tests (search intent extraction, submit guard, query url)
+        run: >
+          ./gradlew :common:testStbetaDebugUnitTest
+          --tests '*IntentExtractorSearchTest'
+          --tests '*SearchSubmitGuardTest'
+          --tests '*SearchQueryUrlTest'
+          --console=plain
+
+      - name: Compile app + merge manifest (debug)
+        run: ./gradlew :smarttubetv:assembleStbetaDebug -x lint --console=plain
+
+      - name: Check merged manifest (no duplicate intent filters, expected search filters)
+        run: |
+          MANIFEST=$(find smarttubetv/build/intermediates -path '*stbetaDebug*' -name AndroidManifest.xml | grep -i merged | head -n 1)
+          echo "Merged manifest: $MANIFEST"
+          test -n "$MANIFEST"
+          python3 - "$MANIFEST" <<'EOF'
+          import sys, xml.etree.ElementTree as ET
+          ns = '{http://schemas.android.com/apk/res/android}'
+          root = ET.parse(sys.argv[1]).getroot()
+          ok = True
+          for a in root.iter('activity'):
+              sigs = []
+              for f in a.findall('intent-filter'):
+                  acts = tuple(sorted(x.get(ns + 'name') for x in f.findall('action')))
+                  cats = tuple(sorted(x.get(ns + 'name') for x in f.findall('category')))
+                  data = tuple(sorted(str(sorted(d.attrib.items())) for d in f.findall('data')))
+                  sigs.append((acts, cats, data))
+              dupes = len(sigs) - len(set(sigs))
+              if dupes:
+                  ok = False
+                  print('DUPLICATE intent filters in', a.get(ns + 'name'), dupes)
+          search_owners = [a.get(ns + 'name') for a in root.iter('activity')
+                           for f in a.findall('intent-filter')
+                           for x in f.findall('action')
+                           if x.get(ns + 'name') == 'android.intent.action.SEARCH']
+          print('ACTION_SEARCH owners:', search_owners)
+          ok = ok and len(search_owners) == 1
+          mpfs = [a.get(ns + 'name') for a in root.iter('activity')
+                  for f in a.findall('intent-filter')
+                  for x in f.findall('action')
+                  if x.get(ns + 'name') == 'android.media.action.MEDIA_PLAY_FROM_SEARCH' and not f.findall('data')]
+          print('data-less MEDIA_PLAY_FROM_SEARCH handlers:', mpfs)
+          ok = ok and len(mpfs) == 1
+          sys.exit(0 if ok else 1)
+          EOF
+
+      - name: Upload debug APK (for sideload testing on a Fire TV)
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: NovaTube_BETA-package_voice-typing_debug_${{ github.run_number }}
+          path: ./smarttubetv/build/outputs/apk/stbeta/debug/*.apk
+          if-no-files-found: error

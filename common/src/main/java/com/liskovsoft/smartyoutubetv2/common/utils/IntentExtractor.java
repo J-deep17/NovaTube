@@ -1,5 +1,6 @@
 package com.liskovsoft.smartyoutubetv2.common.utils;
 
+import android.app.SearchManager;
 import android.content.Intent;
 import android.net.Uri;
 
@@ -22,6 +23,10 @@ public class IntentExtractor {
      * Amazon: youtube://search?query=linkin+park&isVoice=true
      */
     private static final String[] SEARCH_KEYS = {"search_query", "query", "q"};
+    /** {@link android.provider.MediaStore#INTENT_ACTION_MEDIA_PLAY_FROM_SEARCH} */
+    private static final String MEDIA_PLAY_FROM_SEARCH = "android.media.action.MEDIA_PLAY_FROM_SEARCH";
+    /** Extras that may carry the query of ACTION_SEARCH / MEDIA_PLAY_FROM_SEARCH. First non-blank wins. */
+    private static final String[] SEARCH_EXTRA_KEYS = {SearchManager.QUERY, "android.intent.extra.USER_QUERY"};
     private static final String VIDEO_ID_KEY = "v";
     private static final String VIDEO_TIME_KEY = "t";
     private static final String VIDEO_ID_LIST_KEY = "video_ids";
@@ -82,6 +87,13 @@ public class IntentExtractor {
      * Amazon: youtube://search?query=linkin+park&isVoice=true
      */
     public static String extractSearchText(Intent intent) {
+        // Standard search deliveries carry the recognized text in extras, not in a url
+        String extraQuery = extractSearchExtra(intent);
+
+        if (extraQuery != null) {
+            return extraQuery;
+        }
+
         if (isEmptyIntent(intent)) {
             return null;
         }
@@ -278,8 +290,46 @@ public class IntentExtractor {
         return Helpers.runMultiMatcher(data.toString(), voiceQueryPattern);
     }
 
+    /**
+     * Query text of an {@link Intent#ACTION_SEARCH} or {@code MEDIA_PLAY_FROM_SEARCH} intent.<br/>
+     * The standard key is {@link SearchManager#QUERY} ("query"). Values are read as
+     * {@link CharSequence} because senders are not required to use {@link String}.
+     *
+     * @return trimmed text or null (not a search intent, or no usable text)
+     */
+    private static String extractSearchExtra(Intent intent) {
+        if (intent == null) {
+            return null;
+        }
+
+        String action = intent.getAction();
+
+        if (!Intent.ACTION_SEARCH.equals(action) && !MEDIA_PLAY_FROM_SEARCH.equals(action)) {
+            return null;
+        }
+
+        for (String key : SEARCH_EXTRA_KEYS) {
+            CharSequence value = intent.getCharSequenceExtra(key);
+
+            if (value != null) {
+                String text = value.toString().trim();
+
+                if (!text.isEmpty()) {
+                    return text;
+                }
+            }
+        }
+
+        return null;
+    }
+
     private static boolean isEmptyIntent(Intent intent) {
-        return intent == null || (!Intent.ACTION_VIEW.equals(intent.getAction()) && !Intent.ACTION_SEND.equals(intent.getAction())) || extractUri(intent) == null;
+        // MEDIA_PLAY_FROM_SEARCH is declared in the manifest together with youtube/http(s) uris, so it must be parsed like VIEW
+        return intent == null
+                || (!Intent.ACTION_VIEW.equals(intent.getAction())
+                        && !Intent.ACTION_SEND.equals(intent.getAction())
+                        && !MEDIA_PLAY_FROM_SEARCH.equals(intent.getAction()))
+                || extractUri(intent) == null;
     }
 
     private static Uri extractUri(Intent intent) {
