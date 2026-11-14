@@ -35,8 +35,11 @@
                   android:ellipsize="end"
                   android:includeFontPadding="false"
                   android:layout_gravity="end"
-                  android:paddingStart="@dimen/lb_details_description_title_padding_adjust_bottom"
-                  android:paddingEnd="@dimen/lb_details_description_title_padding_adjust_bottom"
+                  android:paddingStart="9dp"
+                  android:paddingEnd="9dp"
+                  android:paddingTop="4dp"
+                  android:paddingBottom="4dp"
+                  android:fontFamily="sans-serif-medium"
                   android:textSize="@dimen/card_badge_text_size"
                   style="@style/TextAppearance.Leanback.ImageCardView.Content" />
         <com.liskovsoft.smartyoutubetv2.tv.ui.widgets.styled.CardProgressBar
