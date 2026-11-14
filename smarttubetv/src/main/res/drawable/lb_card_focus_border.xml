@@ -5,7 +5,7 @@
     <solid android:color="#00000000"/>
     <corners android:radius="@dimen/lb_rounded_rect_corner_radius"/>
     <stroke
-        android:width="3.5dp"
+        android:width="3dp"
         android:color="#FFFFFFFF"/>
 </shape>
 
