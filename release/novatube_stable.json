@@ -1,5 +1,41 @@
 {
   "package": {
+    "downloadUrl": "https://github.com/J-deep17/NovaTube/releases/download/v1.0.10/NovaTube_stable_32.84_universal.apk",
+    "downloadUrlList_armeabi-v7a": [
+      "https://github.com/J-deep17/NovaTube/releases/download/v1.0.10/NovaTube_stable_32.84_armeabi-v7a.apk",
+      "https://github.com/J-deep17/NovaTube/releases/download/v1.0.10/NovaTube_stable_32.84_universal.apk"
+    ],
+    "downloadUrlList_arm64-v8a": [
+      "https://github.com/J-deep17/NovaTube/releases/download/v1.0.10/NovaTube_stable_32.84_arm64-v8a.apk",
+      "https://github.com/J-deep17/NovaTube/releases/download/v1.0.10/NovaTube_stable_32.84_universal.apk"
+    ],
+    "downloadUrlList": [
+      "https://github.com/J-deep17/NovaTube/releases/download/v1.0.10/NovaTube_stable_32.84_universal.apk",
+      "https://github.com/J-deep17/NovaTube/releases/download/v1.0.10/NovaTube_stable_32.84_armeabi-v7a.apk"
+    ]
+  },
+  "32.84": {
+    "versionCode": 2474,
+    "changelog": [
+      "Test release: Fire TV voice-search intent handling",
+      "Preserves existing stable signing key for OTA installation",
+      "Diagnostic test build for Alexa / system search routing"
+    ],
+    "downloadUrl": "https://github.com/J-deep17/NovaTube/releases/download/v1.0.10/NovaTube_stable_32.84_universal.apk",
+    "downloadUrlList_armeabi-v7a": [
+      "https://github.com/J-deep17/NovaTube/releases/download/v1.0.10/NovaTube_stable_32.84_armeabi-v7a.apk",
+      "https://github.com/J-deep17/NovaTube/releases/download/v1.0.10/NovaTube_stable_32.84_universal.apk"
+    ],
+    "downloadUrlList_arm64-v8a": [
+      "https://github.com/J-deep17/NovaTube/releases/download/v1.0.10/NovaTube_stable_32.84_arm64-v8a.apk",
+      "https://github.com/J-deep17/NovaTube/releases/download/v1.0.10/NovaTube_stable_32.84_universal.apk"
+    ],
+    "downloadUrlList": [
+      "https://github.com/J-deep17/NovaTube/releases/download/v1.0.10/NovaTube_stable_32.84_universal.apk",
+      "https://github.com/J-deep17/NovaTube/releases/download/v1.0.10/NovaTube_stable_32.84_armeabi-v7a.apk"
+    ]
+  },
+
     "downloadUrl": "https://github.com/J-deep17/NovaTube/releases/download/v1.0.9/NovaTube_stable_32.83_universal.apk",
     "downloadUrlList_armeabi-v7a": [
       "https://github.com/J-deep17/NovaTube/releases/download/v1.0.9/NovaTube_stable_32.83_armeabi-v7a.apk",
