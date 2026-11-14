@@ -1,7 +1,9 @@
 package com.liskovsoft.smartyoutubetv2.common.utils;
 
+import android.app.SearchManager;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Bundle;
 
 import com.liskovsoft.sharedutils.helpers.GlobalConstants;
 import com.liskovsoft.sharedutils.helpers.Helpers;
@@ -82,6 +84,40 @@ public class IntentExtractor {
      * Amazon: youtube://search?query=linkin+park&isVoice=true
      */
     public static String extractSearchText(Intent intent) {
+        if (intent == null) {
+            return null;
+        }
+
+        // Fire OS / Android TV search providers may deliver recognized speech as
+        // extras (not as a YouTube URL). Read these before the VIEW/SEND URI path.
+        String action = intent.getAction();
+        if (Intent.ACTION_SEARCH.equals(action)
+                || "android.media.action.MEDIA_PLAY_FROM_SEARCH".equals(action)) {
+            Bundle extras = intent.getExtras();
+            String query = firstTextExtra(extras,
+                    SearchManager.QUERY,
+                    "android.intent.extra.QUERY",
+                    "query",
+                    Intent.EXTRA_TEXT,
+                    "android.intent.extra.USER_QUERY");
+            if (query != null) {
+                return query;
+            }
+
+            // Some providers attach the query to the data URI instead.
+            Uri data = intent.getData();
+            if (data != null) {
+                String uriQuery = data.getQueryParameter("query");
+                if (uriQuery == null) {
+                    uriQuery = data.getQueryParameter("q");
+                }
+                if (uriQuery != null && !uriQuery.trim().isEmpty()) {
+                    return uriQuery.trim();
+                }
+            }
+            return null;
+        }
+
         if (isEmptyIntent(intent)) {
             return null;
         }
@@ -168,6 +204,23 @@ public class IntentExtractor {
         UrlQueryString parser = UrlQueryStringFactory.parse(extractUri(intent));
 
         return parser.get(PLAYLIST_KEY);
+    }
+
+    private static String firstTextExtra(Bundle extras, String... keys) {
+        if (extras == null) {
+            return null;
+        }
+
+        for (String key : keys) {
+            Object value = extras.get(key);
+            if (value instanceof CharSequence) {
+                String text = value.toString().trim();
+                if (!text.isEmpty()) {
+                    return text;
+                }
+            }
+        }
+        return null;
     }
 
     private static boolean isValid(String videoId) {
