@@ -1,6 +1,7 @@
 package com.liskovsoft.smartyoutubetv2.common.utils;
 
 import android.content.Intent;
+import android.app.SearchManager;
 import android.net.Uri;
 
 import com.liskovsoft.sharedutils.helpers.GlobalConstants;
@@ -82,6 +83,24 @@ public class IntentExtractor {
      * Amazon: youtube://search?query=linkin+park&isVoice=true
      */
     public static String extractSearchText(Intent intent) {
+        if (intent == null) {
+            return null;
+        }
+
+        // Android TV / Fire TV can deliver voice searches as a search action
+        // with the recognized text in extras instead of a YouTube URL.
+        if (Intent.ACTION_SEARCH.equals(intent.getAction())
+                || "android.media.action.MEDIA_PLAY_FROM_SEARCH".equals(intent.getAction())) {
+            String query = intent.getStringExtra(SearchManager.QUERY);
+            if (query == null) {
+                query = intent.getStringExtra("android.intent.extra.QUERY");
+            }
+            if (query == null) {
+                query = intent.getStringExtra(Intent.EXTRA_TEXT);
+            }
+            return query != null && !query.trim().isEmpty() ? query.trim() : null;
+        }
+
         if (isEmptyIntent(intent)) {
             return null;
         }

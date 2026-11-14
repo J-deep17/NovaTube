@@ -131,6 +131,12 @@
                 <category android:name="android.intent.category.DEFAULT"/>
                 <data android:mimeType="text/plain"/>
             </intent-filter>
+            <!-- Accept standard Android TV / Fire TV voice-search deliveries. -->
+            <intent-filter>
+                <action android:name="android.intent.action.SEARCH" />
+                <action android:name="android.media.action.MEDIA_PLAY_FROM_SEARCH" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
         </activity>
 
         <!-- Alt app launcher icon -->

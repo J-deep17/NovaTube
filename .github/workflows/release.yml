@@ -4,6 +4,8 @@ on:
   push:
     tags:
       - 'v*'
+    branches:
+      - 'fix/firetv-voice-search-intents'
   workflow_dispatch:
     inputs:
       tag_name:
@@ -90,10 +92,13 @@ jobs:
           INPUT_TAG: ${{ github.event.inputs.tag_name }}
         run: |
           if [ -n "$INPUT_TAG" ]; then
-            echo "TAG_NAME=$INPUT_TAG" >> "$GITHUB_OUTPUT"
+            TAG_NAME="$INPUT_TAG"
+          elif [[ "$GITHUB_REF" == refs/tags/* ]]; then
+            TAG_NAME="${GITHUB_REF#refs/tags/}"
           else
-            echo "TAG_NAME=${GITHUB_REF#refs/tags/}" >> "$GITHUB_OUTPUT"
+            TAG_NAME="v1.0.10"
           fi
+          echo "TAG_NAME=$TAG_NAME" >> "$GITHUB_OUTPUT"
 
       - name: Publish GitHub Release (Stable Only)
         env:
