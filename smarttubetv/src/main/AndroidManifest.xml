@@ -126,6 +126,12 @@
                 <data android:scheme="vnd.youtube"/>
                 <data android:scheme="vnd.youtube.launch"/>
             </intent-filter>
+            <!-- Accept standard Android TV / Fire TV search deliveries without URI restrictions. -->
+            <intent-filter>
+                <action android:name="android.intent.action.SEARCH"/>
+                <action android:name="android.media.action.MEDIA_PLAY_FROM_SEARCH"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.SEND"/>
                 <category android:name="android.intent.category.DEFAULT"/>
