@@ -23,7 +23,16 @@ jobs:
         with:
           submodules: recursive
 
-      - name: Set up JDK 17
+      # The repo pins Robolectric 4.6.1 (SharedModules/constants.gradle), which cannot read JDK 17 class files
+      # (JDK 17 support arrived in Robolectric 4.7). Install JDK 11 side by side for the unit-test step only.
+      - name: Set up JDK 11 (unit tests only)
+        uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654 # v5.2.0
+        with:
+          java-version: '11'
+          distribution: 'temurin'
+
+      # Installed last, so it stays the default JAVA_HOME: same JDK as release.yml / CI.yml builds
+      - name: Set up JDK 17 (app build)
         uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654 # v5.2.0
         with:
           java-version: '17'
@@ -34,12 +43,13 @@ jobs:
         run: chmod +x gradlew
 
       - name: Unit tests (search intent extraction, submit guard, query url)
-        run: >
-          ./gradlew :common:testStbetaDebugUnitTest
-          --tests '*IntentExtractorSearchTest'
-          --tests '*SearchSubmitGuardTest'
-          --tests '*SearchQueryUrlTest'
-          --console=plain
+        run: |
+          echo "Running unit tests on: $JAVA_HOME_11_X64"
+          JAVA_HOME="$JAVA_HOME_11_X64" ./gradlew :common:testStbetaDebugUnitTest \
+            --tests '*IntentExtractorSearchTest' \
+            --tests '*SearchSubmitGuardTest' \
+            --tests '*SearchQueryUrlTest' \
+            --console=plain
 
       - name: Compile app + merge manifest (debug)
         run: ./gradlew :smarttubetv:assembleStbetaDebug -x lint --console=plain
