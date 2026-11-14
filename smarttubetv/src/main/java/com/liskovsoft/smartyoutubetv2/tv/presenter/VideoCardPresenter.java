@@ -79,7 +79,7 @@ public class VideoCardPresenter extends LongClickPresenter {
                 animate()
                         .scaleX(selected ? 1.045f : 1.0f)
                         .scaleY(selected ? 1.045f : 1.0f)
-                        .translationZ(selected ? Helpers.dpToPx(context, 10) : 0)
+                        .translationZ(selected ? (10f * context.getResources().getDisplayMetrics().density) : 0)
                         .setDuration(selected ? 170 : 130)
                         .setInterpolator(new android.view.animation.DecelerateInterpolator())
                         .start();
