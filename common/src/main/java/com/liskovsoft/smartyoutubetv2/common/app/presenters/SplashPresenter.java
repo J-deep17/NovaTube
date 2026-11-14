@@ -324,6 +324,16 @@ public class SplashPresenter extends BasePresenter<SplashView> {
 
     public void applyNewIntent(Intent intent) {
         if (intent != null) {
+            if (BuildConfig.DEBUG) {
+                String action = intent.getAction();
+                String dataScheme = intent.getData() != null ? intent.getData().getScheme() : null;
+                String extraKeys = intent.getExtras() != null
+                        ? intent.getExtras().keySet().toString() : "[]";
+                // Never log the recognized query itself; it may contain private speech input.
+                Log.d(TAG, "Incoming intent: action=" + action
+                        + ", dataScheme=" + dataScheme + ", extraKeys=" + extraKeys);
+            }
+
             String oldBridgeName = mBridgePackageName;
             mBridgePackageName = intent.getStringExtra("bridge_package_name");
             if (!Helpers.equals(oldBridgeName, mBridgePackageName)) {
