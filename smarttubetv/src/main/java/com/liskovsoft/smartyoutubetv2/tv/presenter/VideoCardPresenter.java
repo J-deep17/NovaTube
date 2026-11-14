@@ -72,6 +72,17 @@ public class VideoCardPresenter extends LongClickPresenter {
             public void setSelected(boolean selected) {
                 updateCardBackgroundColor(this, selected);
                 super.setSelected(selected);
+
+                // Gentle TV-friendly focus lift: clear focus feedback without
+                // changing the card's measured size or disturbing D-pad navigation.
+                animate().cancel();
+                animate()
+                        .scaleX(selected ? 1.045f : 1.0f)
+                        .scaleY(selected ? 1.045f : 1.0f)
+                        .translationZ(selected ? (10f * context.getResources().getDisplayMetrics().density) : 0)
+                        .setDuration(selected ? 170 : 130)
+                        .setInterpolator(new android.view.animation.DecelerateInterpolator())
+                        .start();
             }
         };
 
